@@ -4,7 +4,7 @@ export const lnObj = {
         ru: `Привет!`
     },
     welcomeBack: {
-        n: `Welcome back!`,
+        en: `Welcome back!`,
         ru: `С возвращением!`
     },
     helloTextH3: {
@@ -47,8 +47,56 @@ export const lnObj = {
         en: `Sign up`,
         ru: `Зарегистрироваться`
     },
+    saveBtn:{
+        en: `Save`,
+        ru: `Cохранить`
+    },
     continueWithoutRegister: {
         en: `Continue without register`,
         ru: `Продолжить без регистрации`
+    },
+    completeProfileH1: {
+        en: `Let's complete profile!`,
+        ru: `Давайте заполним профиль!`
+    },
+    addPhoto: {
+        en: `Add photo`,
+        ru: `добавить фото`
+    },
+    childsName: {
+        en: `Child's name:`,
+        ru: `Имя ребенка:`
+    },
+    childsBirthDate: {
+        en: `Child's birth date:`,
+        ru: `Дата рождения:`
+    },
+    childsGender: {
+        en: `Child's gender:`,
+        ru: `Пол ребенка:`
+    },
+    feeding: {
+        en: `Feeding time:`,
+        ru: `Время кормления:`
+    },
+    sleep: {
+        en: `Sleep time`,
+        ru: `Время отхода ко сну`
+    },
+    newMealSchedule: {
+        en: `Add meal time`,
+        ru: `Добавьте новое кормление`
+    },
+    newBedTimeSchedule: {
+        en: `Add new bedtime`,
+        ru: `Добавьте время засыпания`
+    },
+    feedingName: {
+        en: `Name:`,
+        ru: `Название:`
+    },
+    feedingTime: {
+        en: `Time:`,
+        ru: `Время:`
     },
 };

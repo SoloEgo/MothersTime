@@ -7,14 +7,14 @@ import { useEffect, useRef, useState } from 'react';
 import LogoComponent from '../assets/logo';
 import validator from 'validator';
 import { Icon } from 'react-native-elements'
-import { emailKey, setUpDone, isNew } from '../constants/constants';
+import { emailKey, setUpDone, isNew, userId } from '../constants/constants';
 import { lnObj } from '../constants/language';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Toast from 'react-native-root-toast';
 import { auth } from '../firebase';
 
 export default function SignUp({ navigation }) {
-  
+
   const [language, setLanguage] = useState('')
   const [email, setEmail] = useState('');
   const [isDisabled, setIsDisabled] = useState(true);
@@ -40,7 +40,7 @@ export default function SignUp({ navigation }) {
 
   const createAccount = async () => {
     await createUserWithEmailAndPassword(auth, email, password).then(() => {
-      storeData();
+      storeData(userCredential.user.uid);
     }).catch((error) => {
       if (error.code == 'auth/email-already-in-use') {
         Toast.show('This e-mail is already used', {
@@ -51,8 +51,8 @@ export default function SignUp({ navigation }) {
     })
   }
 
-  const storeData = async () => {
-    await AsyncStorage.multiSet([[emailKey, email], [isNew, 'false'], [setUpDone, 'false']]).then(() => {
+  const storeData = async (userIdVal) => {
+    await AsyncStorage.multiSet([[emailKey, email], [isNew, 'false'], [setUpDone, 'false'], [userId, userIdVal]]).then(() => {
       navigation.navigate('SetUp')
     }).catch((error) => { console.error(error) })
   }
@@ -68,7 +68,6 @@ export default function SignUp({ navigation }) {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : ''}>
       <View style={styles.wrapper}>
-
         <LinearGradient
           colors={['#FF98BD', '#7AAFFF']}
           start={[0, 0]}
@@ -123,14 +122,9 @@ export default function SignUp({ navigation }) {
               </Pressable>
               <View style={[styles.row, styles.haveAccountRow]}>
                 <Text style={styles.haveAccountText}>{lnObj.haveAccount[language]}</Text>
-                <Pressable style={styles.clearBtn}  onPress={moveSignIn} ><Text style={styles.clearBtnText}>{lnObj.signInBtn[language]}</Text></Pressable>
+                <Pressable style={styles.clearBtn} onPress={moveSignIn} ><Text style={styles.clearBtnText}>{lnObj.signInBtn[language]}</Text></Pressable>
               </View>
             </View>
-            <View style={styles.continueWithoutRegisterBlock}>
-                <Pressable style={styles.clearBtn} onPress={moveNext} >
-                  <Text style={styles.clearBtnText}>{lnObj.continueWithoutRegister[language]}</Text>
-                </Pressable>
-              </View>
           </View>
         </LinearGradient>
       </View>

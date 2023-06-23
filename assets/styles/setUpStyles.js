@@ -2,6 +2,13 @@ import { StyleSheet, Platform, StatusBar } from 'react-native';
 
 const setUpStyles = StyleSheet.create({
 
+    wrapper: {
+        width: '100%',
+        height: '100%',
+        flex: 0,
+        justifyContent: 'flex-end'
+    },
+
     container: {
         width: '100%',
         height: '100%',
@@ -9,6 +16,15 @@ const setUpStyles = StyleSheet.create({
         paddingRight: 20,
         backgroundColor: '#fff',
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
+    },
+
+    scrollViewMain: {
+        width: '100%',
+        height: '100%',
+    },
+
+    childFormConfirm: {
+        backgroundColor: '#fff',
     },
 
     row: {
@@ -19,68 +35,49 @@ const setUpStyles = StyleSheet.create({
 
     setUpHeaderText: {
         fontFamily: 'Inter-Regular',
-        fontSize: 25
+        fontSize: 20
     },
 
     setUpContentSlider: {
         borderColor: '#f5f5f5',
-        overflow: 'visible'
-    },
-
-    setUpCard: {
-        width: 200,
-        height:150,
-        margin: 20,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: 0,
-        shadowRadius: 15,
-        shadowOpacity: 0.08,
-        backgroundColor: '#fff',
-        elevation: 20,
+        overflow: 'visible',
+        minHeight: 100
     },
 
     childForm:{
-        flex: 0,
-        marginTop: 20,
         width: '100%',
-        height: '85%',
-        alignItems: 'center',
-        justifyContent: 'space-between'
+        height: '100%',
+        backgroundColor: 'blue',
+        flexDirection: 'column',
+        alignItems: 'flex-start'
     },
 
-    childPhotoContainer: {
-        flex: 0,
+    imageContainer: {
+        alignItems: 'center'
+    },
+
+    imageContainerChanger:{
+        flexDirection: 'column',
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
     },
 
-    imageContainer: {
-        width: '100%',
-        alignItems: 'center',
-    },
-
-    imageContainerChanger:{
-        width: '100%',
-        alignItems: 'center',
-    },
-
     childPhotoIconBlock:{
-        width: '50%',
+        width: '30%',
         aspectRatio: '1/1',
         borderColor: '#d3d3d3',
-        borderWidth: 3,
+        borderWidth: 2,
         borderStyle: 'dashed',
-        borderRadius: 50,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center'
     },
 
     childPhotoImage:{
-        width: '50%',
+        width: '30%',
         aspectRatio: '1/1',
-        borderRadius: 50,
+        borderRadius: 10,
     },
 
     childPhotoIconChange: {
@@ -88,20 +85,26 @@ const setUpStyles = StyleSheet.create({
         backgroundColor: '#5379FF',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
+        padding: 10,
         borderRadius: 100,
-        bottom: 50,
-        right: -60
+        marginBottom: -40,
+        bottom: 40,
+        right: -40
     },
 
     childFormInputsBlockWrapper: {
         height: 30,
-        backgroundColor: '#f4f5fc'
+        backgroundColor: '#EFEFF0'
     },
 
     childFormInputsBlock: {
         width: '100%',
-        marginTop: 20,
+        marginTop: 10,
+    },
+
+    childFormInputsBlock_2: {
+        width: '40%',
+        marginTop: 10,
     },
 
     childFormInputs: {
@@ -114,11 +117,98 @@ const setUpStyles = StyleSheet.create({
     },
 
     childFormInputsLabelText: {
-        fontSize: 16
+        fontSize: 14
+    },
+
+    setUpBlockWrapper:{
+        width: '100%',
+        marginTop: 20,
     },
 
     textInWrap: {
-        marginBottom: 0
+        flex: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 0,
+        marginLeft: 10,
+        backgroundColor: '#EFEFF0',
+        borderRadius: 10,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 15,
+        paddingRight: 15
+    },
+
+    childFormInputsRow: {
+        flexDirection: 'row',
+        width: '100%',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between'
+    },
+
+    setUpCard: {
+        width: 140,
+        height: 70,
+        paddingTop: 5,
+        paddingBttom: 5,
+        paddingLeft: 10,
+        paddingRight: 10,
+        marginRight: 20,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowRadius: 15,
+        shadowOpacity: 0.1,
+        backgroundColor: '#fff',
+        elevation: 2,
+    },
+
+    setUpCardName: {
+        fontFamily: 'Inter-Regular',
+        fontSize: 16,
+        marginBottom: 5
+    },
+
+    setUpCardIcon: {
+        backgroundColor: '#FF5995',
+        aspectRatio: '1/1',
+        padding: 1,
+        borderRadius: 4,
+        marginRight: 10,
+        height: 25,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    setUpCardRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        width: '100%'
+    },
+
+    setUpCardText: {
+        fontFamily: 'Inter-Bold',
+        fontSize: 20
+    },
+
+    setUpCardTitle: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        justifyContent: 'space-between'
+    },
+
+    genderPresSheet: {
+        backgroundColor: '#EFEFF0',
+        paddingTop:6,
+        paddingBottom: 6,
+        paddingLeft: 15,
+        borderRadius: 7
+
+    },
+
+    genderPresSheetText: {
+        fontSize: 18
     }
 
 })

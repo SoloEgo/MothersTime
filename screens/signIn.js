@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import LogoComponent from '../assets/logo';
 import validator from 'validator';
 import { Icon } from 'react-native-elements'
-import { emailKey, pinKey, isNew } from '../constants/constants';
+import { emailKey, setUpDone, isNew, userId} from '../constants/constants';
 import { lnObj } from '../constants/language';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import Toast from 'react-native-root-toast';
@@ -39,8 +39,7 @@ export default function SignIn({ navigation }) {
 
   const signIn = async () => {
     await signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-        console.log('userCredential->',userCredential)
-      storeData();
+      storeData(userCredential.user.uid);
     }).catch((error) => {
         console.log(error.code)
       if (error.code == 'auth/user-not-found') {
@@ -58,9 +57,9 @@ export default function SignIn({ navigation }) {
     })
   }
 
-  const storeData = async () => {
-    await AsyncStorage.multiSet([[emailKey, email], [isNew, 'false']]).then(() => {
-        moveNext
+  const storeData = async (userIdVal, childName, childPhoto) => {
+    await AsyncStorage.multiSet([[emailKey, email], [isNew, 'false'], [setUpDone, 'false'], [userId, userIdVal]]).then(() => {
+        moveNext()
     }).catch((error) => { console.error(error) })
   }
 
@@ -120,6 +119,8 @@ export default function SignIn({ navigation }) {
                 <TextInput
                   style={mainStyles.textInput}
                   value={password}
+                  textContentType='password'
+                  secureTextEntry={true}
                   onChangeText={(value) => { setPassword(value) }}
                   placeholder={lnObj.password[language]}
                   placeholderTextColor="#d3d3d3"
@@ -128,9 +129,9 @@ export default function SignIn({ navigation }) {
               <Pressable style={[styles.confirmButton, isDisabled ? styles.disabledConfirmButton : '']} onPress={signIn} disabled={isDisabled} >
                 <Text style={styles.confirmButtonText}>{lnObj.signIn[language]}</Text>
               </Pressable>
-              <View style={[styles.row, styles.haveAccountRow]}>
+              <View style={[styles.haveAccountRow]}>
                 <Text style={styles.haveAccountText}>{lnObj.haveNotAccount[language]}</Text>
-                <Pressable style={styles.clearBtn}  onPress={moveSignUp} ><Text style={styles.clearBtnText}>{lnObj.signUpBtn[language]}</Text></Pressable>
+                <Pressable style={styles.clearBtn} onPress={moveSignUp} ><Text style={styles.clearBtnText}>{lnObj.signUpBtn[language]}</Text></Pressable>
               </View>
             </View>
           </View>

@@ -20,7 +20,7 @@ export default function App() {
         ? NativeModules.SettingsManager.settings.AppleLocale ||
           NativeModules.SettingsManager.settings.AppleLanguages[0] //iOS 13
         : NativeModules.I18nManager.localeIdentifier;
-      const locale = deviceLanguage.split('_')[0];
+      const locale = deviceLanguage.substring(0,2);
       global.config.language = locale
     }
   }
