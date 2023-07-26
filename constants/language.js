@@ -51,6 +51,14 @@ export const lnObj = {
         en: `Save`,
         ru: `Cохранить`
     },
+    editBtn:{
+        en: `Save`,
+        ru: `Cохранить`
+    },
+    deleteBtn:{
+        en: `Delete`,
+        ru: `удалить`
+    },
     continueWithoutRegister: {
         en: `Continue without register`,
         ru: `Продолжить без регистрации`
@@ -75,8 +83,16 @@ export const lnObj = {
         en: `Child's gender:`,
         ru: `Пол ребенка:`
     },
+    male: {
+        en: `Male`,
+        ru: `Мальчик`
+    },
+    female: {
+        en: `Female`,
+        ru: `Девочка`
+    },
     feeding: {
-        en: `Feeding time:`,
+        en: `Feeding time`,
         ru: `Время кормления:`
     },
     sleep: {
@@ -99,4 +115,9 @@ export const lnObj = {
         en: `Time:`,
         ru: `Время:`
     },
+    settings: {
+        en: 'Settings',
+        ru: 'Настройки'
+    },
+    
 };

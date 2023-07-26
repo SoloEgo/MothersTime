@@ -1,0 +1,13 @@
+export const LOAD_SCHEDULE = 'LOAD_SCHEDULE';
+export const ADD_SCHEDULE = 'ADD_SCHEDULE';
+export const REMOVE_SCHEDULE = 'REMOVE_SCHEDULE';
+export const LOAD_CHILDREN = 'LOAD_CHILDREN';
+export const LOAD_CHILD = 'LOAD_CHILD';
+export const ADD_CHILD = 'ADD_CHILD';
+export const REMOVE_CHILD = 'REMOVE_CHILD';
+export const LOAD_RECORDS = 'LOAD_RECORDS';
+export const ADD_RECORD = 'ADD_RECORD';
+export const REMOVE_RECORD = 'REMOVE_RECORD';
+export const SET_ACTIVE_CHILD = 'SET_ACTIVE_CHILD';
+export const SET_BSH_VISIBLE = 'SET_BSH_VISIBLE';
+export const EDIT_SCHEDULE = 'EDIT_SCHEDULE';

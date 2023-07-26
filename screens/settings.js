@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Text, View, SafeAreaView, Pressable, ScrollView, KeyboardAvoidingView, Image, Alert, TextInput, ActionSheetIOS, Platform, Keyboard } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
+import { settingsStyles } from '../assets/styles/settings';
 import BottomSheetSchedule from '../components/bottomSheetSchedule';
 import ScheduleItem from '../components/scheduleItem';
 import { Icon } from 'react-native-elements'
@@ -13,10 +14,12 @@ import Moment from 'moment';
 import { lnObj } from '../constants/language';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadSchedules, loadChild, addChild, setBottomSheetVisible } from '../store/actions/records';
+import { loadSchedules, loadChildren, loadChild, addChild, setBottomSheetVisible } from '../store/actions/records';
 
 
-export default function SetUp({ navigation }) {
+export default function Settings({ navigation }) {
+    const [activeChild, setActiveChild] = useState([])
+    const [addNewChildState, setAddNewChildState] = useState(false)
     const [language, setLanguage] = useState('')
     const [userIdStored, setUserId] = useState('')
     const [pickedImagePath, setPickedImagePath] = useState('');
@@ -35,7 +38,7 @@ export default function SetUp({ navigation }) {
     const [iosKeyboardPosition, setIosKeyboardPosition] = useState('padding')
 
     const dispatch = useDispatch();
-    
+
     const getStoreData = async () => {
         const values = await AsyncStorage.multiGet([userId]);
         setUserId(values[0][1])
@@ -47,14 +50,38 @@ export default function SetUp({ navigation }) {
     }, [])
 
     useEffect(() => {
+        dispatch(loadChildren(userIdStored));
+    }, [dispatch, userIdStored]);
+
+    const children = useSelector((state) => {
+        return state.records.allChildren
+    });
+
+    //console.log(children)
+
+    useEffect(() => {
+        if (children.length > 0) { dispatch(loadChild(userIdStored, children[0].childrenID)) };
+    }, [dispatch, userIdStored]);
+
+    const child = useSelector((state) => {
+        return state.records.activeChild
+    });
+
+    useEffect(() => {
+        setActiveChild(child)
+        setChildName(child[0].name)
+        setDate(new Date(child[0].dob))
+        setGender(child[0].gender)
+        setPickedImagePath(child[0].photo)
+    }, [child])
+
+    useEffect(() => {
         dispatch(loadSchedules(userIdStored, childId));
     }, [dispatch, userIdStored]);
 
     const schedule = useSelector((state) => {
         return state.records.allSchedules
     });
-
-    //console.log(schedule)
 
     const setLocale = async () => {
         let locale = global.config.language
@@ -95,6 +122,28 @@ export default function SetUp({ navigation }) {
                     setGender('male');
                 } else if (buttonIndex === 2) {
                     setGender('female');
+                }
+            },
+        );
+    }
+
+    const showActionSheetActiveChild = () => {
+        let childrenNames = [...new Set(children.map(item => item.name))]
+        let optionsArray = ['Cancel', ...childrenNames, '+ add new child']
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: optionsArray,
+                //destructiveButtonIndex: 2,
+                cancelButtonIndex: 0,
+                userInterfaceStyle: 'dark',
+            },
+            buttonIndex => {
+                if (buttonIndex === 0) {
+                    // cancel action
+                } else if (buttonIndex === optionsArray.length - 1) {
+                    console.log('add new child')
+                } else {
+                    console.log(children[buttonIndex - 1].name)
                 }
             },
         );
@@ -169,7 +218,7 @@ export default function SetUp({ navigation }) {
             } catch (error) {
                 console.log('error')
             }
-            
+
         }).catch((error) => { console.error(error) })
     }
 
@@ -196,12 +245,59 @@ export default function SetUp({ navigation }) {
                 <View style={setUpStyles.container}>
                     <ScrollView style={setUpStyles.scrollViewMain}>
                         <View style={mainStyles.header}>
-                            <Text style={mainStyles.h1}>{lnObj.completeProfileH1[language]}</Text>
+                            <Text style={mainStyles.h1}>{lnObj.settings[language]}</Text>
                         </View>
                         <View style={setUpStyles.childFormHolder}>
                             <View style={setUpStyles.childFormMainInfo}>
+
+                                <View style={[settingsStyles.row]}>
+                                    <View style={settingsStyles.col}>
+                                        {Platform.OS === 'android' ?
+                                            <View style={settingsStyles.childSelector}>
+                                                <Picker
+                                                    selectedValue={activeChild}
+                                                    onValueChange={
+                                                        (itemValue, itemIndex) => {
+                                                            setGender(itemValue)
+                                                        }
+                                                    }
+                                                >
+                                                    {[
+                                                        children.map((element, i) => {
+                                                            return (
+                                                                <Picker.Item label={element.name} value={element.childId} />
+                                                            )
+                                                        })
+                                                    ]}
+                                                    <Picker.Item label="add new child" value="new child " />
+                                                </Picker>
+                                            </View>
+                                            :
+                                            <Pressable onPress={showActionSheetActiveChild} style={setUpStyles.genderPresSheet}>
+                                                <Text style={setUpStyles.genderPresSheetText}>
+                                                    {children[0].name}
+                                                </Text>
+                                            </Pressable>
+                                        }
+                                    </View>
+                                    <View style={settingsStyles.col}>
+                                        <Pressable onPress={() => {
+                                        }} style={mainStyles.mainPlusBtn}>
+                                            <Icon
+                                                name='add-outline'
+                                                type='ionicon'
+                                                color='#fff'
+                                                size={20}
+                                                style={setUpStyles.signUpFormIcon}
+                                            />
+                                        </Pressable>
+                                    </View>
+                                </View>
+
+
+
                                 <View style={setUpStyles.imageContainer}>
-                                    {pickedImagePath !== '' ?
+                                    {!addNewChildState ?
                                         <Pressable style={setUpStyles.imageContainerChanger} onPress={showPhotoAlert}>
                                             <Image style={setUpStyles.childPhotoImage} source={{ uri: 'data:image/jpeg;base64,' + pickedImagePath }} />
                                             <View style={setUpStyles.childPhotoIconChange}>
@@ -233,10 +329,10 @@ export default function SetUp({ navigation }) {
                                         <TextInput
                                             style={mainStyles.textInput}
                                             value={childName}
-                                            onFocus={ () => {
+                                            onFocus={() => {
                                                 setIosKeyboardPosition('padding')
-                                                
-                                            } }
+
+                                            }}
                                             onChangeText={(value) => { setChildName(value) }}
                                         ></TextInput>
                                     </View>
@@ -335,10 +431,10 @@ export default function SetUp({ navigation }) {
                                             {[
                                                 schedule.filter(item => item.type == "feeding").map((element, i) => {
                                                     return (
-                                                        <Pressable key={element.scheduleId} 
-                                                        onPress={()=>{
-                                                            editSchedule(element.scheduleId, element.name, element.time, 'feeding')
-                                                            setIosKeyboardPosition('position')
+                                                        <Pressable key={element.scheduleId}
+                                                            onPress={() => {
+                                                                editSchedule(element.scheduleId, element.name, element.time, 'feeding')
+                                                                setIosKeyboardPosition('position')
                                                             }}>
                                                             <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="feeding" />
                                                         </Pressable>
@@ -384,10 +480,10 @@ export default function SetUp({ navigation }) {
                                             {[
                                                 schedule.filter(item => item.type == "sleep").map((element, i) => {
                                                     return (
-                                                        <Pressable key={element.scheduleId} onPress={()=>{
+                                                        <Pressable key={element.scheduleId} onPress={() => {
                                                             editSchedule(element.scheduleId, element.name, element.time, 'sleep')
                                                             setIosKeyboardPosition('position')
-                                                            }}>
+                                                        }}>
                                                             <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="sleep" />
                                                         </Pressable>
                                                     )
@@ -400,7 +496,7 @@ export default function SetUp({ navigation }) {
                         </View>
                     </ScrollView>
                     <View style={setUpStyles.childFormConfirm}>
-                        <Pressable style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={()=>{saveChild()}}><Text style={[mainStyles.text, mainStyles.t_center, mainStyles.h4, mainStyles.textWhite]}>{lnObj.saveBtn[language]}</Text></Pressable>
+                        <Pressable style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={() => { saveChild() }}><Text style={[mainStyles.text, mainStyles.t_center, mainStyles.h4, mainStyles.textWhite]}>{lnObj.saveBtn[language]}</Text></Pressable>
                     </View>
                 </View>
             </SafeAreaView>

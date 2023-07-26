@@ -18,7 +18,7 @@ const bottomSheetStyles = StyleSheet.create({
         left: 0,
         width: '100%',
         height: '100%',
-        opacity: 0.1,
+        opacity: 0.15,
         zIndex: 10
     },
 
@@ -36,8 +36,31 @@ const bottomSheetStyles = StyleSheet.create({
     },
 
     ScrollView: {
-        padding: 20
+        paddingVertical: 40,
+        paddingHorizontal: 20
     },
+
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+        paddingHorizontal: 20
+    },
+    
+    textInputWrapper: {
+        flex: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#EFEFF0',
+        borderRadius: 10,
+        maxWidth: "70%"
+    },
+
+    inputLabelRow: {
+        fontSize: 16,
+        paddingVertical: Platform.OS === "android" ? 5 : 10,
+        width: '30%'
+    }
 })
 
 export { bottomSheetStyles }

@@ -12,8 +12,8 @@ const setUpStyles = StyleSheet.create({
     container: {
         width: '100%',
         height: '100%',
-        paddingLeft: 20,
-        paddingRight: 20,
+        paddingLeft: 0,
+        paddingRight: 0,
         backgroundColor: '#fff',
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
     },
@@ -41,7 +41,8 @@ const setUpStyles = StyleSheet.create({
     setUpContentSlider: {
         borderColor: '#f5f5f5',
         overflow: 'visible',
-        minHeight: 100
+        minHeight: 100,
+        paddingHorizontal: 20
     },
 
     childForm:{
@@ -71,7 +72,8 @@ const setUpStyles = StyleSheet.create({
         borderStyle: 'dashed',
         borderRadius: 10,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        padding: 5
     },
 
     childPhotoImage:{
@@ -100,6 +102,7 @@ const setUpStyles = StyleSheet.create({
     childFormInputsBlock: {
         width: '100%',
         marginTop: 10,
+        //paddingHorizontal: 20
     },
 
     childFormInputsBlock_2: {
@@ -130,13 +133,9 @@ const setUpStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 0,
-        marginLeft: 10,
+        marginLeft: 0,
         backgroundColor: '#EFEFF0',
         borderRadius: 10,
-        paddingTop: 10,
-        paddingBottom: 10,
-        paddingLeft: 15,
-        paddingRight: 15
     },
 
     childFormInputsRow: {
@@ -209,6 +208,25 @@ const setUpStyles = StyleSheet.create({
 
     genderPresSheetText: {
         fontSize: 18
+    },
+
+    inputWrapperRow: {
+        width: '50%',
+        marginLeft: 20
+    },
+
+    childFormMainInfo: {
+        paddingHorizontal: 20
+    },
+
+    setUpHeader: {
+        paddingHorizontal: 20
+    },
+
+    iosDateInput: {
+        marginLeft: -15,
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start'
     }
 
 })

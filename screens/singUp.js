@@ -82,7 +82,7 @@ export default function SignUp({ navigation }) {
           />
           <View style={styles.regBlock}>
             <View style={styles.signUpText}>
-              <LogoComponent width="120" height="120" style={styles.logoImg} />
+              <LogoComponent width="130" height="135" style={styles.logoImg} />
               <View style={styles.row}><Text style={styles.h1}>{lnObj.helloTextH1[language]}</Text><Text style={styles.hiEmoji}>👋</Text></View>
               <Text style={styles.h3}>{lnObj.helloTextH3[language]}</Text>
             </View>
@@ -99,7 +99,8 @@ export default function SignUp({ navigation }) {
                   value={email}
                   onChangeText={(value) => { setEmail(value) }}
                   placeholder="E-mail"
-                  placeholderTextColor="#d3d3d3" ß
+                  placeholderTextColor="#d3d3d3"
+                  autoCapitalize="none"
                 ></TextInput>
               </View>
               <View style={mainStyles.textInputWrapper}>
