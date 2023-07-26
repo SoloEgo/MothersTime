@@ -1,35 +1,21 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { emailKey, isNew, setUpDone } from '../constants/constants';
-import { styles } from "../assets/styles/styles";
 import SignUp from './singUp';
 import SetUp from './setUp';
+import Main from "./main";
 import { Text, View } from 'react-native';
-import useFonts from '../assets/styles/useFonts';
 import { mainStyles } from "../assets/styles/mainStyles";
 import { useFocusEffect } from "@react-navigation/core";
+import * as SplashScreen from 'expo-splash-screen';
+import { bootstrap } from '../components/bootsrap';
 
-export default function Home({navigation}) {
+SplashScreen.preventAutoHideAsync();
+
+export default function Home({ navigation }) {
   const [isSignUp, setIsSignUp] = useState(false)
   const [setupDone, setSetupDone] = useState(false)
-  const [fontLoaded, setFontLoaded] = useState(false);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      retrieveData();
-    },[])
-  )
-  
-  useEffect(() => {
-    AsyncStorage.clear();
-    async function loadFont() {
-      await useFonts();
-      setFontLoaded(true);
-    }
-    if(!fontLoaded){
-      loadFont()
-    }
-  }, [])
+  const [appIsReady, setAppIsReady] = useState(false);
 
   const retrieveData = async () => {
     try {
@@ -45,18 +31,50 @@ export default function Home({navigation}) {
     }
   }
 
-  if (!fontLoaded) {
-    return <Text>Loading...</Text>;
+  useFocusEffect(
+    React.useCallback(() => {
+      retrieveData();
+    }, [])
+  )
+
+  useEffect(() => {
+    //AsyncStorage.clear();
+    async function prepare() {
+      try {
+        await bootstrap();
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+      }
+    }
+
+    prepare();
+  }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return (
+    <View style={mainStyles.preloaderView}>
+      <Text>LOADING</Text>
+    </View>
+    )
   }
 
   return (
-    <View style={mainStyles.mainContainer}>
+    <View style={mainStyles.mainContainer} onLayout={onLayoutRootView}>
       {!isSignUp ? <SignUp navigation={navigation} /> :
         <>
-          {!setupDone ? <SetUp navigation={navigation}/> : 
-          <View>
-            <Text>Home</Text>
-          </View>}
+          {!setupDone ?
+            <SetUp navigation={navigation} /> :
+            <Main navigation={navigation} />
+          }
         </>
       }
     </View>
