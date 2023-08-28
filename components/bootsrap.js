@@ -1,7 +1,11 @@
 import {DB} from './db';
 import * as Font from "expo-font";
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserId, loadChild, wipeData } from '../store/actions/records';
 
 export async function bootstrap() {
+    //const dispatch = useDispatch();
+
     try {
         await Font.loadAsync({
             'Inter-Black': require('../assets/fonts/Inter-Black.ttf'),
@@ -14,11 +18,13 @@ export async function bootstrap() {
             'Inter-SemiBold': require('../assets/fonts/Inter-SemiBold.ttf'),
             'Inter-Thin': require('../assets/fonts/Inter-Thin.ttf'),
         });
+
         console.log('starting db')
         await DB.initChildren();
         await DB.initSchedule();
         await DB.initTask();
         console.log('Database started...');
+       // dispatch(setAppIsReady(true))
         return true
     } catch (e) {
         console.log('Error: ', e);

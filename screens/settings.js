@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Text, View, SafeAreaView, Pressable, ScrollView, KeyboardAvoidingView, Image, Alert, TextInput, ActionSheetIOS, Platform, Keyboard } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
+import { Text, View, SafeAreaView, TouchableOpacity, ScrollView, KeyboardAvoidingView, Image, Alert, TextInput, ActionSheetIOS, Platform, Button } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
 import { settingsStyles } from '../assets/styles/settings';
@@ -14,14 +14,22 @@ import Moment from 'moment';
 import { lnObj } from '../constants/language';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadSchedules, loadChildren, loadChild, addChild, setBottomSheetVisible } from '../store/actions/records';
+import { loadSchedules, addChild, setBottomSheetVisible, editChild } from '../store/actions/records';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+    }),
+});
 
 
 export default function Settings({ navigation }) {
     const [activeChild, setActiveChild] = useState([])
     const [addNewChildState, setAddNewChildState] = useState(false)
-    const [language, setLanguage] = useState('')
-    const [userIdStored, setUserId] = useState('')
     const [pickedImagePath, setPickedImagePath] = useState('');
     const [gender, setGender] = useState('male');
     const [childName, setChildName] = useState('')
@@ -37,31 +45,110 @@ export default function Settings({ navigation }) {
     const [changeType, setChangeType] = useState('add')
     const [iosKeyboardPosition, setIosKeyboardPosition] = useState('padding')
 
-    const dispatch = useDispatch();
+    const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
 
-    const getStoreData = async () => {
-        const values = await AsyncStorage.multiGet([userId]);
-        setUserId(values[0][1])
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+            setNotification(notification);
+        });
+
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            console.log(response);
+        });
+
+        return () => {
+            console.log('remove all notifications')
+            //Notifications.removeNotificationSubscription(notificationListener.current);
+            //Notifications.removeNotificationSubscription(responseListener.current);
+        };
+    }, []);
+
+    async function schedulePushNotification() {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(responseListener.current);
+        Notifications.cancelAllScheduledNotificationsAsync()
+
+        for (let i = 0; i < schedule.length; i++) {
+            let triggerSc
+            let hours = new Date(schedule[i].time).getHours()
+            let minutes = new Date(schedule[i].time).getMinutes()
+            console.log('create notification')
+            Platform.OS === 'android' ? triggerSc = { hour: hours, minute: minutes, repeats: true, } : triggerSc = { type: 'daily', hour: hours, minute: minutes }
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: `Пришло время ${schedule[i].type == 'feeding' ? 'есть' : 'спать'}!`,
+                    body: `Подходит время для ${schedule[i].name}`,
+                    data: { data: 'goes here' },
+                },
+                trigger: triggerSc
+            });
+        }
     }
 
-    useEffect(() => {
-        setLocale()
-        getStoreData()
-    }, [])
+    async function requestPermissionsAsync() {
+        return await Notifications.requestPermissionsAsync({
+            ios: {
+                allowAlert: true,
+                allowBadge: true,
+                allowSound: true,
+                allowAnnouncements: true,
+            }
+        });
+    }
 
-    useEffect(() => {
-        dispatch(loadChildren(userIdStored));
-    }, [dispatch, userIdStored]);
+    async function registerForPushNotificationsAsync() {
+        let token;
 
-    const children = useSelector((state) => {
-        return state.records.allChildren
+        let as = await requestPermissionsAsync()
+
+        if (Platform.OS === 'android') {
+            console.log('set notification')
+            await Notifications.setNotificationChannelAsync('motherstime', {
+                name: 'motherstime',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
+        }
+
+        if (Device.isDevice) {
+
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                console.log('ask perm notification')
+                const { status } = await Notifications.requestPermissionsAsync();
+                console.log({ status })
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+            token = (await Notifications.getExpoPushTokenAsync()).data;
+            console.log('token=>');
+            console.log(token);
+        } else {
+            alert('Must use physical device for Push Notifications');
+        }
+
+        return token;
+    }
+
+    const dispatch = useDispatch();
+
+    const language = useSelector((state) => {
+        return state.records.locale
     });
 
-    //console.log(children)
-
-    useEffect(() => {
-        if (children.length > 0) { dispatch(loadChild(userIdStored, children[0].childrenID)) };
-    }, [dispatch, userIdStored]);
+    const userId = useSelector((state) => {
+        return state.records.userId
+    })
 
     const child = useSelector((state) => {
         return state.records.activeChild
@@ -76,17 +163,12 @@ export default function Settings({ navigation }) {
     }, [child])
 
     useEffect(() => {
-        dispatch(loadSchedules(userIdStored, childId));
-    }, [dispatch, userIdStored]);
+        dispatch(loadSchedules(userId, childId));
+    }, [dispatch, userId]);
 
     const schedule = useSelector((state) => {
         return state.records.allSchedules
     });
-
-    const setLocale = async () => {
-        let locale = global.config.language
-        setLanguage(locale)
-    }
 
     useEffect(() => {
         if (childName.length >= 2) {
@@ -127,28 +209,6 @@ export default function Settings({ navigation }) {
         );
     }
 
-    const showActionSheetActiveChild = () => {
-        let childrenNames = [...new Set(children.map(item => item.name))]
-        let optionsArray = ['Cancel', ...childrenNames, '+ add new child']
-        ActionSheetIOS.showActionSheetWithOptions(
-            {
-                options: optionsArray,
-                //destructiveButtonIndex: 2,
-                cancelButtonIndex: 0,
-                userInterfaceStyle: 'dark',
-            },
-            buttonIndex => {
-                if (buttonIndex === 0) {
-                    // cancel action
-                } else if (buttonIndex === optionsArray.length - 1) {
-                    console.log('add new child')
-                } else {
-                    console.log(children[buttonIndex - 1].name)
-                }
-            },
-        );
-    }
-
     const showPhotoAlert = () => {
         Alert.alert(
             'Photo',
@@ -167,8 +227,6 @@ export default function Settings({ navigation }) {
 
     const openCamera = async () => {
         const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-        console.log(permissionResult)
 
         if (permissionResult.granted === false) {
             alert("You've refused to allow this appp to access your camera!");
@@ -203,27 +261,27 @@ export default function Settings({ navigation }) {
             return
         }
 
-        const userIdVal = await AsyncStorage.getItem(userId)
-        await AsyncStorage.multiSet([[activePhoto, pickedImagePath], [activeNameStored, childName], [setUpDone, 'true']]).then(async () => {
-            const childRecord = {
-                userId: userIdVal,
-                name: childName,
-                dob: Moment(dateOfBirth).format("YYYY-MM-DD"),
-                gender: gender,
-                photo: pickedImagePath
-            }
-            try {
-                dispatch(addChild(childRecord));
-                moveHome()
-            } catch (error) {
-                console.log('error')
-            }
+        const childRecord = {
+            userId: userId,
+            childrenID: childId,
+            name: childName,
+            dob: Moment(dateOfBirth).format("YYYY-MM-DD"),
+            gender: gender,
+            photo: pickedImagePath,
+        }
 
-        }).catch((error) => { console.error(error) })
+        //console.log('childRecord=>', childRecord)   
+
+        try {
+            dispatch(editChild(childRecord));
+            moveHome()
+        } catch (error) {
+            console.log('error')
+        }
     }
 
     const moveHome = () => {
-        navigation.push('Home')
+        navigation.push('Main')
     }
 
     const setIsVisible = async (visibility) => {
@@ -240,7 +298,7 @@ export default function Settings({ navigation }) {
     }
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? iosKeyboardPosition : 'height'}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? iosKeyboardPosition : ''}>
             <SafeAreaView style={setUpStyles.wrapper}>
                 <View style={setUpStyles.container}>
                     <ScrollView style={setUpStyles.scrollViewMain}>
@@ -250,55 +308,9 @@ export default function Settings({ navigation }) {
                         <View style={setUpStyles.childFormHolder}>
                             <View style={setUpStyles.childFormMainInfo}>
 
-                                <View style={[settingsStyles.row]}>
-                                    <View style={settingsStyles.col}>
-                                        {Platform.OS === 'android' ?
-                                            <View style={settingsStyles.childSelector}>
-                                                <Picker
-                                                    selectedValue={activeChild}
-                                                    onValueChange={
-                                                        (itemValue, itemIndex) => {
-                                                            setGender(itemValue)
-                                                        }
-                                                    }
-                                                >
-                                                    {[
-                                                        children.map((element, i) => {
-                                                            return (
-                                                                <Picker.Item label={element.name} value={element.childId} />
-                                                            )
-                                                        })
-                                                    ]}
-                                                    <Picker.Item label="add new child" value="new child " />
-                                                </Picker>
-                                            </View>
-                                            :
-                                            <Pressable onPress={showActionSheetActiveChild} style={setUpStyles.genderPresSheet}>
-                                                <Text style={setUpStyles.genderPresSheetText}>
-                                                    {children[0].name}
-                                                </Text>
-                                            </Pressable>
-                                        }
-                                    </View>
-                                    <View style={settingsStyles.col}>
-                                        <Pressable onPress={() => {
-                                        }} style={mainStyles.mainPlusBtn}>
-                                            <Icon
-                                                name='add-outline'
-                                                type='ionicon'
-                                                color='#fff'
-                                                size={20}
-                                                style={setUpStyles.signUpFormIcon}
-                                            />
-                                        </Pressable>
-                                    </View>
-                                </View>
-
-
-
                                 <View style={setUpStyles.imageContainer}>
-                                    {!addNewChildState ?
-                                        <Pressable style={setUpStyles.imageContainerChanger} onPress={showPhotoAlert}>
+                                    {!pickedImagePath.length <= 0 ?
+                                        <TouchableOpacity style={setUpStyles.imageContainerChanger} onPress={showPhotoAlert}>
                                             <Image style={setUpStyles.childPhotoImage} source={{ uri: 'data:image/jpeg;base64,' + pickedImagePath }} />
                                             <View style={setUpStyles.childPhotoIconChange}>
                                                 <Icon
@@ -308,9 +320,9 @@ export default function Settings({ navigation }) {
                                                     size={20}
                                                 />
                                             </View>
-                                        </Pressable>
+                                        </TouchableOpacity>
                                         :
-                                        <Pressable style={setUpStyles.childPhotoIconBlock} onPress={showPhotoAlert}>
+                                        <TouchableOpacity style={setUpStyles.childPhotoIconBlock} onPress={showPhotoAlert}>
                                             <Icon
                                                 name='camera-outline'
                                                 type='ionicon'
@@ -318,9 +330,10 @@ export default function Settings({ navigation }) {
                                                 size={30}
                                             />
                                             <Text style={[mainStyles.text, mainStyles.t_center, mainStyles.p]}>{lnObj.addPhoto[language]}</Text>
-                                        </Pressable>
+                                        </TouchableOpacity>
                                     }
                                 </View>
+
                                 <View style={setUpStyles.childFormInputsBlock}>
                                     <View style={setUpStyles.childFormInputsLabel}>
                                         <Text style={setUpStyles.childFormInputsLabelText}>{lnObj.childsName[language]}</Text>
@@ -345,7 +358,7 @@ export default function Settings({ navigation }) {
                                         {Platform.OS === 'android' ?
                                             <View style={[setUpStyles.textInWrap, mainStyles.textInputWrapper]}>
                                                 <View>
-                                                    <Pressable style={{ padding: 5 }} onPress={() => { setShow(true); }}><Text style={mainStyles.textInput}>{Moment(dateOfBirth).format('DD.MM.yyyy')}</Text></Pressable>
+                                                    <TouchableOpacity style={{ padding: 5 }} onPress={() => { setShow(true); }}><Text style={mainStyles.textInput}>{Moment(dateOfBirth).format('DD.MM.yyyy')}</Text></TouchableOpacity>
                                                     {show && (
                                                         <DateTimePicker
                                                             testID="dateTimePickerTest"
@@ -386,9 +399,9 @@ export default function Settings({ navigation }) {
                                                 </Picker>
                                             </View>
                                             :
-                                            <Pressable onPress={showActionSheet} style={setUpStyles.genderPresSheet}>
+                                            <TouchableOpacity onPress={showActionSheet} style={setUpStyles.genderPresSheet}>
                                                 <Text style={setUpStyles.genderPresSheetText}>{gender == 'male' ? lnObj.male[language] : lnObj.female[language]}</Text>
-                                            </Pressable>
+                                            </TouchableOpacity>
                                         }
                                     </View>
                                 </View>
@@ -398,7 +411,7 @@ export default function Settings({ navigation }) {
                                     <View style={setUpStyles.setUpHeader}>
                                         <View style={setUpStyles.row}>
                                             <Text style={setUpStyles.setUpHeaderText}>{lnObj.feeding[language]}</Text>
-                                            <Pressable onPress={() => {
+                                            <TouchableOpacity onPress={() => {
                                                 setIsVisible(true)
                                                 setChangeType('add')
                                                 setActiveType('feeding')
@@ -411,7 +424,7 @@ export default function Settings({ navigation }) {
                                                     size={20}
                                                     style={setUpStyles.signUpFormIcon}
                                                 />
-                                            </Pressable>
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
                                     <View style={setUpStyles.setUpContentWrapper}>
@@ -431,13 +444,13 @@ export default function Settings({ navigation }) {
                                             {[
                                                 schedule.filter(item => item.type == "feeding").map((element, i) => {
                                                     return (
-                                                        <Pressable key={element.scheduleId}
+                                                        <TouchableOpacity key={element.scheduleId}
                                                             onPress={() => {
                                                                 editSchedule(element.scheduleId, element.name, element.time, 'feeding')
                                                                 setIosKeyboardPosition('position')
                                                             }}>
                                                             <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="feeding" />
-                                                        </Pressable>
+                                                        </TouchableOpacity>
                                                     )
                                                 })
                                             ]}
@@ -448,7 +461,7 @@ export default function Settings({ navigation }) {
                                     <View style={setUpStyles.setUpHeader}>
                                         <View style={setUpStyles.row}>
                                             <Text style={setUpStyles.setUpHeaderText}>{lnObj.sleep[language]}</Text>
-                                            <Pressable onPress={() => {
+                                            <TouchableOpacity onPress={() => {
                                                 setIsVisible(true)
                                                 setActiveType('sleep')
                                                 setChangeType('add')
@@ -461,7 +474,7 @@ export default function Settings({ navigation }) {
                                                     size={20}
                                                     style={setUpStyles.signUpFormIcon}
                                                 />
-                                            </Pressable>
+                                            </TouchableOpacity>
                                         </View>
                                     </View>
                                     <View style={setUpStyles.setUpContentWrapper}>
@@ -480,12 +493,12 @@ export default function Settings({ navigation }) {
                                             {[
                                                 schedule.filter(item => item.type == "sleep").map((element, i) => {
                                                     return (
-                                                        <Pressable key={element.scheduleId} onPress={() => {
+                                                        <TouchableOpacity key={element.scheduleId} onPress={() => {
                                                             editSchedule(element.scheduleId, element.name, element.time, 'sleep')
                                                             setIosKeyboardPosition('position')
                                                         }}>
                                                             <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="sleep" />
-                                                        </Pressable>
+                                                        </TouchableOpacity>
                                                     )
                                                 })
                                             ]}
@@ -496,12 +509,15 @@ export default function Settings({ navigation }) {
                         </View>
                     </ScrollView>
                     <View style={setUpStyles.childFormConfirm}>
-                        <Pressable style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={() => { saveChild() }}><Text style={[mainStyles.text, mainStyles.t_center, mainStyles.h4, mainStyles.textWhite]}>{lnObj.saveBtn[language]}</Text></Pressable>
+                        <TouchableOpacity style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={() => {
+                            saveChild()
+                            schedulePushNotification()
+                        }}><Text style={[mainStyles.text, mainStyles.t_center, mainStyles.h4, mainStyles.textWhite]}>{lnObj.saveBtn[language]}</Text></TouchableOpacity>
                     </View>
                 </View>
             </SafeAreaView>
 
-            <BottomSheetSchedule activeType={activeType} childId={childId} userIdStored={userIdStored} activeTime={activeTime} activeName={activeName} activeScheduleId={activeScheduleId} type={changeType} />
+            <BottomSheetSchedule activeType={activeType} childId={childId} userIdStored={userId} activeTime={activeTime} activeName={activeName} activeScheduleId={activeScheduleId} type={changeType} />
 
         </KeyboardAvoidingView>
     );

@@ -11,7 +11,6 @@ import { lnObj } from '../constants/language';
 import { addSchedule, setBottomSheetVisible, removeSchedule, editSchedule } from '../store/actions/records';
 
 export default function BottomSheetSchedule(props) {
-    const [language, setLanguage] = useState('')
     const [scheduleName, setScheduleName] = useState('')
     const [scheduleTime, setScheduleTime] = useState(new Date(new Date().setHours(0, 0, 0, 0)))
     const [showTime, setShowTime] = useState(false);
@@ -21,23 +20,18 @@ export default function BottomSheetSchedule(props) {
 
     const dispatch = useDispatch();
 
+    const language = useSelector((state) => {
+        return state.records.locale
+    });
+
     const isVisible = useSelector((state) => {
         return state.records.bottomSheetVisible
     });
-
-    const setLocale = async () => {
-        let locale = global.config.language
-        setLanguage(locale)
-    }
 
     const setIsVisible = async (visibility) => {
         dispatch(setBottomSheetVisible(visibility))
         Keyboard.dismiss()
     }
-
-    useEffect(() => {
-        setLocale()
-    }, [])
 
     useEffect(() => {
         props.type == 'edit' ? setScheduleName(props.activeName) : setScheduleName('')
@@ -63,7 +57,6 @@ export default function BottomSheetSchedule(props) {
             time: Moment(scheduleTime).format("YYYY-MM-DD HH:mm:ss.SSS"),
             childId: childId
         }
-
         dispatch(addSchedule(scheduleRecord));
         setIsVisible(false)
         setScheduleName('')
@@ -71,21 +64,19 @@ export default function BottomSheetSchedule(props) {
     }
 
     const editSchedulePress = async () => {
+
         const scheduleRecord = {
             userId: userIdStored,
             childId: childId,
             scheduleId: props.activeScheduleId,
             name: scheduleName,
-            time: Moment(scheduleTime).format("YYYY-MM-DD HH:mm:ss.SSS"),
-
+            time: Moment(scheduleTime).format("YYYY-MM-DD HH:mm:ss.SSS")
         }
 
         dispatch(editSchedule(scheduleRecord));
         setIsVisible(false)
         setScheduleName('')
         Keyboard.dismiss()
-
-        console.log(scheduleRecord)
     }
 
     const deleteItemFromSchedule = async () => {

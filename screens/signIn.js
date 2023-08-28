@@ -7,27 +7,23 @@ import { useEffect, useRef, useState } from 'react';
 import LogoComponent from '../assets/logo';
 import validator from 'validator';
 import { Icon } from 'react-native-elements'
-import { emailKey, setUpDone, isNew, userId} from '../constants/constants';
+import { emailKey, setUpDone, isNew, userId } from '../constants/constants';
 import { lnObj } from '../constants/language';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import Toast from 'react-native-root-toast';
 import { auth } from '../firebase';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function SignIn({ navigation }) {
-  const [language, setLanguage] = useState('')
   const [email, setEmail] = useState('');
   const [isDisabled, setIsDisabled] = useState(true);
   const [password, setPassword] = useState('');
   const CODE_LENGTH = 6;
 
-  const setLocale = async () => {
-    let locale = global.config.language
-    setLanguage(locale)
-  }
+  const language = useSelector((state) => {
+    return state.records.locale
+  });
 
-  useEffect(() => {
-    setLocale()
-  }, [])
 
   useEffect(() => {
     if (validator.isEmail(email) && password.length >= CODE_LENGTH) {
@@ -41,7 +37,7 @@ export default function SignIn({ navigation }) {
     await signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
       storeData(userCredential.user.uid);
     }).catch((error) => {
-        console.log(error.code)
+      console.log(error.code)
       if (error.code == 'auth/user-not-found') {
         Toast.show('User not fond', {
           duration: Toast.durations.LONG,
@@ -49,7 +45,7 @@ export default function SignIn({ navigation }) {
         });
       }
       if (error.code == 'auth/wrong-password') {
-        Toast.show( lnObj.passwordIncorrect[language], {
+        Toast.show(lnObj.passwordIncorrect[language], {
           duration: Toast.durations.LONG,
           position: 50,
         });
@@ -59,7 +55,7 @@ export default function SignIn({ navigation }) {
 
   const storeData = async (userIdVal, childName, childPhoto) => {
     await AsyncStorage.multiSet([[emailKey, email], [isNew, 'false'], [setUpDone, 'false'], [userId, userIdVal]]).then(() => {
-        moveNext()
+      moveNext()
     }).catch((error) => { console.error(error) })
   }
 

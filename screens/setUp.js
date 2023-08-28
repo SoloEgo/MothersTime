@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Text, View, SafeAreaView, Pressable, ScrollView, KeyboardAvoidingView, Image, Alert, TextInput, ActionSheetIOS, Platform, Keyboard } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
@@ -13,11 +13,21 @@ import Moment from 'moment';
 import { lnObj } from '../constants/language';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadSchedules, loadChild, addChild, setBottomSheetVisible } from '../store/actions/records';
+import { loadSchedules, addChild, setBottomSheetVisible } from '../store/actions/records';
+
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+    }),
+});
 
 
 export default function SetUp({ navigation }) {
-    const [language, setLanguage] = useState('')
     const [userIdStored, setUserId] = useState('')
     const [pickedImagePath, setPickedImagePath] = useState('');
     const [gender, setGender] = useState('male');
@@ -34,7 +44,108 @@ export default function SetUp({ navigation }) {
     const [changeType, setChangeType] = useState('add')
     const [iosKeyboardPosition, setIosKeyboardPosition] = useState('padding')
 
+
+    const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+            setNotification(notification);
+        });
+
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            console.log(response);
+        });
+
+        return () => {
+            console.log('remove all notifications')
+            //Notifications.removeNotificationSubscription(notificationListener.current);
+            //Notifications.removeNotificationSubscription(responseListener.current);
+        };
+    }, []);
+
+    async function schedulePushNotification() {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(responseListener.current);
+        Notifications.cancelAllScheduledNotificationsAsync()
+
+        for (let i = 0; i < schedule.length; i++) {
+            let triggerSc
+            let hours = new Date(schedule[i].time).getHours()
+            let minutes = new Date(schedule[i].time).getMinutes()
+            console.log('create notification')
+            Platform.OS === 'android' ? triggerSc = { hour: hours, minute: minutes, repeats: true, } : triggerSc = { type: 'daily', hour: hours, minute: minutes }
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: `Пришло время ${schedule[i].type == 'feeding' ? 'есть' : 'спать'}!`,
+                    body: `Подходит время для ${schedule[i].name}`,
+                    data: { data: 'goes here' },
+                },
+                trigger: triggerSc
+            });
+        }
+    }
+
+    async function requestPermissionsAsync() {
+        return await Notifications.requestPermissionsAsync({
+            ios: {
+                allowAlert: true,
+                allowBadge: true,
+                allowSound: true,
+                allowAnnouncements: true,
+            }
+        });
+    }
+
+    async function registerForPushNotificationsAsync() {
+        let token;
+
+        let as = await requestPermissionsAsync()
+
+        if (Platform.OS === 'android') {
+            console.log('set notification')
+            await Notifications.setNotificationChannelAsync('motherstime', {
+                name: 'motherstime',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
+        }
+
+        if (Device.isDevice) {
+
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            if (existingStatus !== 'granted') {
+                console.log('ask perm notification')
+                const { status } = await Notifications.requestPermissionsAsync();
+                console.log({ status })
+                finalStatus = status;
+            }
+            if (finalStatus !== 'granted') {
+                alert('Failed to get push token for push notification!');
+                return;
+            }
+            token = (await Notifications.getExpoPushTokenAsync()).data;
+            console.log('token=>');
+            console.log(token);
+        } else {
+            alert('Must use physical device for Push Notifications');
+        }
+
+        return token;
+    }
+
+
     const dispatch = useDispatch();
+
+    const language = useSelector((state) => {
+        return state.records.locale
+    });
     
     const getStoreData = async () => {
         const values = await AsyncStorage.multiGet([userId]);
@@ -42,7 +153,6 @@ export default function SetUp({ navigation }) {
     }
 
     useEffect(() => {
-        setLocale()
         getStoreData()
     }, [])
 
@@ -54,18 +164,15 @@ export default function SetUp({ navigation }) {
         return state.records.allSchedules
     });
 
-    //console.log(schedule)
-
-    const setLocale = async () => {
-        let locale = global.config.language
-        setLanguage(locale)
-    }
-
     useEffect(() => {
-        if (childName.length >= 2) {
+        let f = schedule.filter(item=>item.type == 'feeding').length
+        let s = schedule.filter(item=>item.type == 'sleep').length
+        if (childName.length >= 2 && f >= 1 && s >= 1) {
             setIsActiveButton(true)
+        }else{
+            setIsActiveButton(false)
         }
-    }, [childName])
+    }, [childName, schedule])
 
     const onChangeDate = (event, selectedDate) => {
         const currentDate = selectedDate;
@@ -119,8 +226,6 @@ export default function SetUp({ navigation }) {
     const openCamera = async () => {
         const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
 
-        console.log(permissionResult)
-
         if (permissionResult.granted === false) {
             alert("You've refused to allow this appp to access your camera!");
             return;
@@ -128,7 +233,7 @@ export default function SetUp({ navigation }) {
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             aspect: [4, 4],
-            quality: 0.3,
+            quality: 0.1,
             base64: true
         });
         if (!result.canceled) {
@@ -141,7 +246,7 @@ export default function SetUp({ navigation }) {
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
             aspect: [4, 4],
-            quality: 0.3,
+            quality: 0.1,
             base64: true
         });
         if (!result.canceled) {
@@ -155,7 +260,7 @@ export default function SetUp({ navigation }) {
         }
 
         const userIdVal = await AsyncStorage.getItem(userId)
-        await AsyncStorage.multiSet([[activePhoto, pickedImagePath], [activeNameStored, childName], [setUpDone, 'true']]).then(async () => {
+        await AsyncStorage.multiSet([[setUpDone, 'true']]).then(async () => {
             const childRecord = {
                 userId: userIdVal,
                 name: childName,
@@ -191,7 +296,7 @@ export default function SetUp({ navigation }) {
     }
 
     return (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? iosKeyboardPosition : 'height'}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? iosKeyboardPosition : ''}>
             <SafeAreaView style={setUpStyles.wrapper}>
                 <View style={setUpStyles.container}>
                     <ScrollView style={setUpStyles.scrollViewMain}>
@@ -400,7 +505,10 @@ export default function SetUp({ navigation }) {
                         </View>
                     </ScrollView>
                     <View style={setUpStyles.childFormConfirm}>
-                        <Pressable style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={()=>{saveChild()}}><Text style={[mainStyles.text, mainStyles.t_center, mainStyles.h4, mainStyles.textWhite]}>{lnObj.saveBtn[language]}</Text></Pressable>
+                        <Pressable style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={()=>{
+                            saveChild()
+                            schedulePushNotification()
+                            }}><Text style={[mainStyles.text, mainStyles.t_center, mainStyles.h4, mainStyles.textWhite]}>{lnObj.saveBtn[language]}</Text></Pressable>
                     </View>
                 </View>
             </SafeAreaView>

@@ -12,23 +12,17 @@ import { lnObj } from '../constants/language';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import Toast from 'react-native-root-toast';
 import { auth } from '../firebase';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function SignUp({ navigation }) {
-
-  const [language, setLanguage] = useState('')
   const [email, setEmail] = useState('');
   const [isDisabled, setIsDisabled] = useState(true);
   const [password, setPassword] = useState('');
   const CODE_LENGTH = 6;
 
-  const setLocale = async () => {
-    let locale = global.config.language
-    setLanguage(locale)
-  }
-
-  useEffect(() => {
-    setLocale()
-  }, [])
+  const language = useSelector((state) => {
+    return state.records.locale
+  });
 
   useEffect(() => {
     if (validator.isEmail(email) && password.length >= CODE_LENGTH) {
@@ -39,9 +33,10 @@ export default function SignUp({ navigation }) {
   }, [email, password])
 
   const createAccount = async () => {
-    await createUserWithEmailAndPassword(auth, email, password).then(() => {
-      storeData(userCredential.user.uid);
+    await createUserWithEmailAndPassword(auth, email, password).then((result) => {
+      storeData(result.user.uid);
     }).catch((error) => {
+      console.log(error)
       if (error.code == 'auth/email-already-in-use') {
         Toast.show('This e-mail is already used', {
           duration: Toast.durations.LONG,
@@ -53,7 +48,7 @@ export default function SignUp({ navigation }) {
 
   const storeData = async (userIdVal) => {
     await AsyncStorage.multiSet([[emailKey, email], [isNew, 'false'], [setUpDone, 'false'], [userId, userIdVal]]).then(() => {
-      navigation.navigate('SetUp')
+      moveNext()
     }).catch((error) => { console.error(error) })
   }
 

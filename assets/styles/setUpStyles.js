@@ -224,7 +224,7 @@ const setUpStyles = StyleSheet.create({
     },
 
     iosDateInput: {
-        marginLeft: -15,
+        marginLeft: 0,
         alignItems: 'flex-start',
         justifyContent: 'flex-start'
     }

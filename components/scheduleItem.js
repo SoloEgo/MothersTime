@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Text, View, Pressable, TextInput, Platform, Keyboard } from 'react-native';
+//import { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
-import { mainStyles } from '../assets/styles/mainStyles';
-import { bottomSheetStyles } from '../assets/styles/bottomSheetStyles';
-import { useDispatch, useSelector } from 'react-redux';
-import DateTimePicker from '@react-native-community/datetimepicker';
+// import { mainStyles } from '../assets/styles/mainStyles';
+// import { bottomSheetStyles } from '../assets/styles/bottomSheetStyles';
+// import { useDispatch, useSelector } from 'react-redux';
+// import DateTimePicker from '@react-native-community/datetimepicker';
 import Moment from 'moment';
-import { lnObj } from '../constants/language';
-import { addSchedule, setBottomSheetVisible, removeSchedule } from '../store/actions/records';
+// import { lnObj } from '../constants/language';
+// import { addSchedule, setBottomSheetVisible, removeSchedule } from '../store/actions/records';
 import { Icon } from 'react-native-elements'
 
 export default function ScheduleItem(props) {

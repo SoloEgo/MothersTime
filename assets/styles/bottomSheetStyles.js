@@ -14,10 +14,10 @@ const bottomSheetStyles = StyleSheet.create({
     blackBlock: {
         backgroundColor: '#000',
         position: 'absolute',
-        top: 0,
+        top: -100,
         left: 0,
         width: '100%',
-        height: '100%',
+        height: '200%',
         opacity: 0.15,
         zIndex: 10
     },
@@ -60,6 +60,21 @@ const bottomSheetStyles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: Platform.OS === "android" ? 5 : 10,
         width: '30%'
+    },
+
+    childFormInputsBlock_1: {
+        width: '50%',
+    },
+
+    sleepTimeBlock: {
+        borderWidth: 1,
+        borderColor: '#d3d3d3',
+        borderRadius: 10,
+        marginBottom: 20
+    }, 
+
+    todayText: {
+        color: "#d3d3d3"
     }
 })
 

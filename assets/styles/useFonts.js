@@ -1,7 +1,6 @@
 import * as Font from "expo-font";
 
 export default useFonts = async () => {
-    console.log('font')
     await Font.loadAsync({
         'Inter-Black': require('../fonts/Inter-Black.ttf'),
         'Inter-Bold': require('../fonts/Inter-Bold.ttf'),

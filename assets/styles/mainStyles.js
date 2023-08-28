@@ -160,6 +160,15 @@ const mainStyles = StyleSheet.create({
         fontFamily: 'Inter-Regular',
     },
 
+    inputLabelTextSleep: {
+        marginLeft: 10,
+        marginTop: -13,
+        marginBottom: 10,
+        backgroundColor: '#fff',
+        alignSelf: 'flex-start',
+        paddingHorizontal: 10
+    },
+
     childInfoWrapper: {
         marginTop: 10,
         marginBottom: 20,
@@ -268,9 +277,10 @@ const mainStyles = StyleSheet.create({
         fontSize: 24
     },
 
-    mainScrollView:{
+    mainScrollView: {
         backgroundColor: "#f5f5f5",
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 0
     },
 
     headerControlButton: {
@@ -295,8 +305,8 @@ const mainStyles = StyleSheet.create({
     bottomMenuHolder: {
         backgroundColor: '#fff',
         padding: 10,
-        paddingBottom: 50,
-        marginBottom:-40,
+        paddingBottom: Platform.OS === "android" ? 50 : 35,
+        marginBottom: -40,
         shadowColor: '#000',
         shadowRadius: 15,
         shadowOpacity: 0.2,
@@ -309,7 +319,6 @@ const mainStyles = StyleSheet.create({
     },
 
     bm_feeding: {
-        backgroundColor: '#5379FF',
         borderWidth: 2,
         borderColor: '#5379FF'
     },
@@ -319,19 +328,38 @@ const mainStyles = StyleSheet.create({
         borderColor: '#5379FF'
     },
 
+    activeMenuButton: {
+        backgroundColor: '#5379FF',
+    },
+
     addRecordButton: {
         backgroundColor: '#FF5995',
         borderWidth: 2,
-        borderColor: '#FF5995'
+        borderColor: '#FF5995',
     },
 
     bottomMeuButton: {
-        padding: 7,
-        borderRadius: 15
+        width: 45,
+        aspectRatio: '1/1',
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+
+    bottomMenuText: { 
+        textAlign: 'center', 
+        fontSize: 12, 
+        color: '#5379FF' 
+    },
+
+    bottomMenuTextAdd: { 
+        textAlign: 'center', 
+        fontSize: 12, 
+        color: '#FF5995' 
     },
 
     recordRow: {
-        marginBottom: 10
+        //marginBottom: 10
     },
 
     recordBlockWrapper: {
@@ -339,10 +367,46 @@ const mainStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 20,
-        marginBottom: 20
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 17,
+        marginVertical: 15,
+        marginHorizontal: 5,
+        elevation: 1,
+        shadowColor: '#000',
+        shadowRadius: 1,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+    },
+
+    recordBlockWrapperSleep: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 5,
+
+    },
+
+    recordBlockSleepWrapper: {
+        backgroundColor: "#fff",
+        //flexDirection: 'row',
+        //alignItems: 'center',
+        //justifyContent: 'space-between',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 15,
+        marginVertical: 15,
+        elevation: 1,
+        shadowColor: '#000',
+        shadowRadius: 1,
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
     },
 
     recordTextPartHolder: {
@@ -357,6 +421,13 @@ const mainStyles = StyleSheet.create({
         borderRadius: 10,
         marginEnd: 20
     },
+    rtpIconPast: {
+        backgroundColor: '#d3d3d3',
+        aspectRatio: '1/1',
+        padding: 5,
+        borderRadius: 10,
+        marginEnd: 20
+    },
 
     rtpTextName: {
         fontSize: 20,
@@ -364,7 +435,7 @@ const mainStyles = StyleSheet.create({
     },
 
     rtpTextDate: {
-        fontSize: 10,
+        fontSize: 12,
         color: '#AAAAAA'
     },
 
@@ -390,13 +461,71 @@ const mainStyles = StyleSheet.create({
 
     tcb_timePass: {
         alignItems: 'center',
-        marginTop: 5
     },
 
     tcb_TextDate: {
         color: '#AAAAAA'
+    },
+
+    preloaderView: {
+        flex: 1,
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        padding: 10,
+    },
+
+    sleepRow: {
+        justifyContent: 'space-between'
+    },
+
+    recordTimeTextSleep: {
+        fontSize: 25
+    },
+
+    recordTime: {
+        textAlign: 'center'
+    },
+
+    sleepRecordDurationDiv: {
+        width: '100%',
+        height: 1,
+        backgroundColor: '#d3d3d3',
+        paddingHorizontal: 20,
+        position: 'absolute',
+        top: 10
+    },
+
+    sleepColText: {
+        marginHorizontal: 25,
+        paddingHorizontal: 5,
+        backgroundColor: '#fff'
+    },
+
+    countDayMain: {
+        justifyContent: 'center',
+        marginTop: 20
+    },
+
+    countDayMainText: {
+        textAlign: 'center',
+        color: '#9E9E9E',
+        marginTop: -10,
+        backgroundColor: '#f5f5f5',
+        paddingHorizontal: 5,
+        alignSelf: 'flex-start',
+        textTransform: 'capitalize'
+    },
+
+    countDayMainLine: {
+        height: 1,
+        backgroundColor: '#d3d3d3',
+        //position: 'absolute',
+        //marginTop: 10
     }
-    
+
 })
 
 export { mainStyles }
