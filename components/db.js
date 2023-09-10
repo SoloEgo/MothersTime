@@ -160,9 +160,11 @@ export class DB {
                     "Insert into children (userId, name, dob, gender, photo) values (?, ?, ?, ?, ?); commit;",
                     [userId, name, dob, gender, photo],
                     (_, result) => {
+                        console.log('create child success')
                         resolve(result.insertId)
                     },
                     (error) => {
+                        console.log('create child error')
                         console.log(error)
                         reject(error)
                     }
@@ -183,15 +185,17 @@ export class DB {
                             "SELECT max(scheduleId) as scheduleId from schedule where userId=? and childId=? ",
                             [userId, childId],
                             (_, result) => {
+                                console.log('success create schedule')
                                 resolve(result.rows._array)
                             },
                             (error) => {
+                                console.log('error create schedule 2')
                                 reject(error)
                             }
                         );
                     },
                     (error) => {
-                        console.log('error')
+                        console.log('error create schedule')
                         reject(error)
                     }
                 );

@@ -5,6 +5,7 @@ import { Icon } from 'react-native-elements'
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { lnObj } from '../constants/language';
+import HeaderImage from './headerImage';
 
 export default function HeaderComponent(props) {
     const [popupActive, setPopupActive] = useState(false);
@@ -37,16 +38,14 @@ export default function HeaderComponent(props) {
             <View style={mainStyles.headerUserCol}>
                 <View style={mainStyles.col}>
                     <Pressable style={mainStyles.headerUserProfile} onPress={() => { setPopupActive(true) }}>
-                        <View style={mainStyles.headerUserPhoto}>
-                            <Image style={mainStyles.childPhotoImage} source={{ uri: 'data:image/jpeg;base64,' + child[0].photo }} />
-                        </View>
+                        <HeaderImage image={child[0].photo} name={child[0].name}></HeaderImage>
                         <View style={mainStyles.userNameHolder}>
                             <View style={mainStyles.mainUserName}>
                                 <Text style={[mainStyles.headerUserName, mainStyles.text]}>{child[0].name}</Text>
                             </View>
                             <View style={[mainStyles.subUserInfo]}>
                                 <Text style={[mainStyles.subUserInfoText, mainStyles.text]}>{child[0].gender == 'female' ? lnObj.female[language] : lnObj.male[language] }, </Text>
-                                <Text style={[mainStyles.subUserInfoText, mainStyles.text]}>{Moment().diff(child[0].dob, 'years') == 0 ? Moment().diff(child[0].dob, 'months') : Moment().diff(child[0].dob, 'years')} {lnObj.yearsOld[language]}</Text>
+                                <Text style={[mainStyles.subUserInfoText, mainStyles.text]}>{Moment().diff(child[0].dob, 'years') <= 3 ? `${Moment().diff(child[0].dob, 'years')}${lnObj.yearsOld[language]} ${(Moment().diff(child[0].dob, 'months')% 12)}${lnObj.monthsOld[language]}` : `${Moment().diff(child[0].dob, 'years')} ${lnObj.yearsOld[language]}`}</Text>
                             </View>
                         </View>
                     </Pressable>

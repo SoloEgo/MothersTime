@@ -55,10 +55,10 @@ export default function BottomSheetRecord(props) {
         for (let index = 0; index < schedules.length; index++) {
             let b = Moment(schedules[index].time)
             let c = Math.abs(Moment.duration(b.diff(a)))
-            if(index == 0){
+            if (index == 0) {
                 minDiff = c
-            }else{
-                if(c < minDiff){
+            } else {
+                if (c < minDiff) {
                     minDiff = c
                     resultIndex = index
                 }
@@ -68,13 +68,18 @@ export default function BottomSheetRecord(props) {
     }
 
     useEffect(() => {
-        props.type == 'edit' ? setRecordName(props.activeName) : setRecordName('')
+
         if (props.type == 'edit') {
+            console.log(props.activeDateTime)
+            console.log(props.activeDateTimeEnd)
+            console.log(props.activeName)
+            setRecordName(props.activeName)
             setRecordDate(new Date(props.activeDateTime))
             setRecordTime(new Date(props.activeDateTime))
             setRecordDateEnd(new Date(props.activeDateTimeEnd))
             setRecordTimeEnd(new Date(props.activeDateTimeEnd))
         } else {
+            setRecordName('')
             setRecordDate(new Date())
             setRecordTime(new Date())
             setRecordDateEnd(null)
@@ -132,14 +137,15 @@ export default function BottomSheetRecord(props) {
     };
 
     const setDefaultValues = () => {
-        if (schedules.length > 0) {
-            let resIndex = findClosestSchedule()
-            console.log(resIndex)
-            setRecordName(schedules[resIndex].name)
-            setRecordIndex(schedules[resIndex].scheduleId)
+        if (props.type != 'edit') {
+            if (schedules.length > 0) {
+                let resIndex = findClosestSchedule()
+                setRecordName(schedules[resIndex].name)
+                setRecordIndex(schedules[resIndex].scheduleId)
+            }
+            setRecordDateEnd(null)
+            setRecordTimeEnd(null)
         }
-        setRecordDateEnd(null)
-        setRecordTimeEnd(null)
     }
 
     const setRecordPress = async () => {
@@ -172,7 +178,7 @@ export default function BottomSheetRecord(props) {
     const editRecordPress = async () => {
         let dateTimeEnd
 
-        if (recordDateEnd && recordTimeEnd) {
+        if (recordDateEnd && recordTimeEnd && Moment(recordDateEnd).format("YYYY-MM-DD") != '1900-01-01') {
             dateTimeEnd = Moment(recordDateEnd).format("YYYY-MM-DD") + ' ' + Moment(recordTimeEnd).format("HH:mm:ss.SSS")
         } else {
             dateTimeEnd = Moment(new Date('1900-01-01 00:00:00.000')).format("YYYY-MM-DD")
@@ -264,7 +270,7 @@ export default function BottomSheetRecord(props) {
                         </View>
 
                         <View style={bottomSheetStyles.sleepTimeBlock}>
-                            <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep]}>{ activeType == 'sleep' ? lnObj.childGoToSleep[language] : lnObj.childGoToEat[language] }</Text>
+                            <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep]}>{activeType == 'sleep' ? lnObj.childGoToSleep[language] : lnObj.childGoToEat[language]}</Text>
                             <View style={bottomSheetStyles.row}>
                                 <View style={bottomSheetStyles.inputLabelRow}>
                                     <Text style={mainStyles.inputLabelText}>{lnObj.date[language]}</Text>
@@ -339,7 +345,8 @@ export default function BottomSheetRecord(props) {
 
                         {activeType == 'sleep' ?
                             <View>
-                                {recordDateEnd && recordDateEnd.getFullYear() != '1900' ?
+
+                                {recordDateEnd != null && recordDateEnd.getFullYear() != '1900' ?
                                     <View style={bottomSheetStyles.sleepTimeBlock}>
                                         <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep]}>{lnObj.childWakesUpAt[language]}</Text>
                                         <View style={bottomSheetStyles.row}>

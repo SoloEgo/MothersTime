@@ -63,9 +63,10 @@ export const recordsReducer = (state = initialState, action) => {
                 allRecords: state.allRecords.filter((p) => p.recordId !== action.payload.recordId)
             };
         case ADD_CHILD:
+            console.log('payload', action.payload)
             return {
                 ...state,
-                allChild: [{ ...action.payload }, ...state.allChild],
+                allChild: [{ ...action.payload }]
             };
         case ADD_SCHEDULE:
             return {

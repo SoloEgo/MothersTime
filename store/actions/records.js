@@ -12,7 +12,7 @@ export const setAppIsReady = (state) => {
 
 export const setActiveChild = ({ userId, childId }) => async (dispatch) => {
     const child = await DB.getChild({ userId });
-    let payload = { userId, name: child[0].name, dob: child[0].dob, gender: child[0].gender, photo: child[0].photo }
+    let payload = { userId, name: child[0].name, dob: child[0].dob, gender: child[0].gender, photo: child[0].photo, childrenID: child[0].childrenID }
     dispatch({
         type: ADD_ACTIVE_CHILD,
         payload,
@@ -86,9 +86,9 @@ export const removeRecord = (userId, recordId) => async (dispatch) => {
     });
 };
 
-export const addChild = ({ userId, name, dob, gender, photo }) => async (dispatch) => {
+export const addChild = ({ userId, name, dob, gender, photo, childrenID }) => async (dispatch) => {
     await DB.createChild({ userId, name, dob, gender, photo });
-    let payload = { userId, name, dob, gender, photo }
+    let payload = { userId, name, dob, gender, photo, childrenID }
     dispatch({
         type: ADD_CHILD,
         payload,

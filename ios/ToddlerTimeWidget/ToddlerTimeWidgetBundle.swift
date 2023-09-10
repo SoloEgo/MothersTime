@@ -12,6 +12,5 @@ import SwiftUI
 struct ToddlerTimeWidgetBundle: WidgetBundle {
     var body: some Widget {
         ToddlerTimeWidget()
-        ToddlerTimeWidgetLiveActivity()
     }
 }

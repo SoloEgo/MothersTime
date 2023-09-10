@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Text, View, SafeAreaView, Pressable, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { mainStyles } from '../assets/styles/mainStyles';
+import { themeStyles } from '../assets/styles/themeStyles';
 import { Icon } from 'react-native-elements'
 import Moment from 'moment';
 import { lnObj } from '../constants/language';
@@ -53,8 +54,6 @@ export default function Main({ navigation }) {
     const recordsFiltered = records.filter(item => item.type == activeType)
     recordsFiltered.sort((a, b) => (a.dateTime < b.dateTime) ? 1 : (a.dateTime > b.dateTime) ? -1 : 0)
 
-    //console.log(recordsFiltered)
-
     const schedulesRaw = useSelector((state) => {
         return state.records.allSchedules
     })
@@ -104,7 +103,7 @@ export default function Main({ navigation }) {
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'height' : 'height'}>
-            <SafeAreaView style={{ backgroundColor: '#f5f5f5' }}>
+            <SafeAreaView style={[{ backgroundColor: '#f5f5f5' },themeStyles.backgroundColor]}>
                 <View style={mainStyles.screenContainer}>
                     <HeaderComponent userId={userId} navigation={navigation} child={child}></HeaderComponent>
                     <View style={mainStyles.headingTextBlock}>

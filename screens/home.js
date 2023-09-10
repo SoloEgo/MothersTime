@@ -2,7 +2,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState, useCallback } from 'react';
 import { emailKey, isNew, setUpDone, userId } from '../constants/constants';
 import SignUp from './singUp';
-import SetUp from './setUp';
 import Main from "./main";
 import { Text, View } from 'react-native';
 import { mainStyles } from "../assets/styles/mainStyles";
@@ -11,6 +10,7 @@ import { useFocusEffect } from "@react-navigation/core";
 import { bootstrap } from '../components/bootsrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, loadChild, wipeData } from '../store/actions/records';
+import Settings from "./settings";
 
 //SplashScreen.preventAutoHideAsync();
 
@@ -82,7 +82,7 @@ export default function Home({ navigation }) {
       {!isSignUp ? <SignUp navigation={navigation} /> :
         <>
           {!setupDone ?
-            <SetUp navigation={navigation} /> :
+            <Settings navigation={navigation} /> :
             <Main navigation={navigation} />
           }
         </>

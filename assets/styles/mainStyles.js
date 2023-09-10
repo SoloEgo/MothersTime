@@ -186,13 +186,6 @@ const mainStyles = StyleSheet.create({
         marginRight: 10
     },
 
-    childPhotoImage: {
-        resizeMode: 'cover',
-        width: '100%',
-        height: '100%',
-        borderRadius: 100
-    },
-
     headerNameChildText: {
         fontSize: 20,
         fontFamily: 'Inter-Regular',
@@ -250,9 +243,31 @@ const mainStyles = StyleSheet.create({
 
     childPhotoImage: {
         aspectRatio: '1/1',
-        width: 50,
+        width: 55,
         marginRight: 10,
+        borderRadius: 100,
+        resizeMode: 'cover',
+        //width: '100%',
+        //height: '100%',
         borderRadius: 100
+    },
+
+    childPhotoText: {
+        aspectRatio: '1/1',
+        width: 55,
+        marginRight: 10,
+        borderRadius: 100,
+        resizeMode: 'cover',
+        //width: '100%',
+        //height: '100%',
+        backgroundColor: '#E5ECF6',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    childPhotoText_text: {
+        color: '#3e3e3e',
+        fontSize: 35
     },
 
     userNameHolder: {
@@ -524,7 +539,11 @@ const mainStyles = StyleSheet.create({
         backgroundColor: '#d3d3d3',
         //position: 'absolute',
         //marginTop: 10
-    }
+    },
+
+    checkbox: {
+        padding: 5
+    },
 
 })
 

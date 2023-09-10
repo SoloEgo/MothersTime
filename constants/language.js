@@ -59,13 +59,25 @@ export const lnObj = {
         en: `Sign In`,
         ru: `Войти`
     },
+    resetPasswordHeader:{
+        en: 'Reset password',
+        ru: 'Восстановление'
+    },
+    resetPasswordH3:{
+        en: 'Enter your e-mail',
+        ru: 'Введите e-mail'
+    },
+    resetPasswordButton:{
+        en: 'Reset password',
+        ru: 'Восстановить'
+    },
     haveAccount: {
-        en: `Already have account?`,
-        ru: `У вас уже есть аккаунт?`
+        en: `Have account?`,
+        ru: `Есть аккаунт?`
     },
     haveNotAccount: {
-        en: `New to Mother's Time?`,
-        ru: `У вас еще нет аккаунта?`
+        en: `New to Toddler Time?`,
+        ru: `Нет аккаунта?`
     },
     signInBtn: {
         en: `Sign in`,
@@ -120,8 +132,12 @@ export const lnObj = {
         ru: `Девочка`
     },
     yearsOld: {
-        en: `years old`,
+        en: `y.`,
         ru: `г.`
+    },
+    monthsOld: {
+        en: `m.`,
+        ru: `м.`
     },
     feeding: {
         en: `Feeding time`,
@@ -221,4 +237,9 @@ export const lnObj = {
         en: 'Child active for:',
         ru: 'Ребенок бодрствует:'
     },
+
+    turnOnNotifications: {
+        en: 'Would you like to recieve notifications?',
+        ru: 'Включить напоминания?'
+    }
 };

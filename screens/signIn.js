@@ -3,8 +3,7 @@ import { styles } from '../assets/styles/styles'
 import { mainStyles } from '../assets/styles/mainStyles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef, useState } from 'react';
-import LogoComponent from '../assets/logo';
+import { useEffect, useState } from 'react';
 import validator from 'validator';
 import { Icon } from 'react-native-elements'
 import { emailKey, setUpDone, isNew, userId } from '../constants/constants';
@@ -12,7 +11,7 @@ import { lnObj } from '../constants/language';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import Toast from 'react-native-root-toast';
 import { auth } from '../firebase';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 export default function SignIn({ navigation }) {
   const [email, setEmail] = useState('');
@@ -66,6 +65,9 @@ export default function SignIn({ navigation }) {
   const moveSignUp = () => {
     navigation.navigate('SignUp')
   }
+  const moveResetPassword = () => {
+    navigation.navigate('PasswordReset')
+  }
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : ''}>
@@ -85,7 +87,7 @@ export default function SignIn({ navigation }) {
           />
           <View style={styles.regBlock}>
             <View style={styles.signUpText}>
-              <LogoComponent width="130" height="135" style={styles.logoImg} />
+              {/* <LogoComponent width="130" height="135" style={styles.logoImg} /> */}
               <View style={styles.row}><Text style={styles.h1}>{lnObj.welcomeBack[language]}</Text><Text style={styles.hiEmoji}>👋</Text></View>
               <Text style={styles.h3}>{lnObj.welcomBackTextH3[language]}</Text>
             </View>
@@ -106,7 +108,7 @@ export default function SignIn({ navigation }) {
                   autoCapitalize="none"
                 ></TextInput>
               </View>
-              <View style={mainStyles.textInputWrapper}>
+              <View style={[mainStyles.textInputWrapper, {marginBottom: 0}]}>
                 <Icon
                   name='lock-closed-outline'
                   type='ionicon'
@@ -123,10 +125,14 @@ export default function SignIn({ navigation }) {
                   placeholderTextColor="#d3d3d3"
                 ></TextInput>
               </View>
+              <View style={[mainStyles.row, {marginBottom: 20}]}>
+                <View><Text style={styles.haveAccountText}>Забыли пароль?</Text></View>
+                <Pressable style={styles.clearBtn} onPress={moveResetPassword}><Text style={styles.clearBtnText}>{lnObj.resetPasswordButton[language]}</Text></Pressable>
+              </View>
               <Pressable style={[styles.confirmButton, isDisabled ? styles.disabledConfirmButton : '']} onPress={signIn} disabled={isDisabled} >
                 <Text style={styles.confirmButtonText}>{lnObj.signIn[language]}</Text>
               </Pressable>
-              <View style={[styles.haveAccountRow]}>
+              <View style={[styles.haveAccountRow, mainStyles.row]}>
                 <Text style={styles.haveAccountText}>{lnObj.haveNotAccount[language]}</Text>
                 <Pressable style={styles.clearBtn} onPress={moveSignUp} ><Text style={styles.clearBtnText}>{lnObj.signUpBtn[language]}</Text></Pressable>
               </View>

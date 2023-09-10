@@ -14,8 +14,8 @@ export default function TimeCheckBlock(props) {
     const index = props.index
     const spinValue = new Animated.Value(0);
     const rotate = spinValue.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0deg', '360deg']
+        inputRange: [0,1],
+        outputRange: ['0deg','360deg']
     })
     useEffect(() => {
         if (status == 'good') {
@@ -49,16 +49,13 @@ export default function TimeCheckBlock(props) {
                 {timePass ?
                     <View style={mainStyles.tcb_pill}>
                         <View style={[mainStyles.tcb_timePass, mainStyles.row]}>
-                            <Animated.View style={{transform: [{rotate}]}}>
-                                <Icon
-                                    name={type == 'feeding' ? index == 0 ? 'time-outline' : 'checkmark-circle-outline' : 'accessibility'}
-                                    type={type == 'feeding' ? 'ionicon' : 'octicon'}
-                                    color='#d3d3d3'
-                                    size={type == 'feeding' ? 20 : 15}
-                                    style={{ marginRight: 5 }}
-                                />
-                            </Animated.View>
-
+                            <Icon
+                                name={ type == 'feeding' ? index == 0 ? 'time-outline' : 'checkmark-circle-outline' : 'accessibility'}
+                                type={ type == 'feeding' ? 'ionicon' : 'octicon'}
+                                color='#d3d3d3'
+                                size={ type == 'feeding' ? 20 : 15 }
+                                style={{marginRight: 5}}
+                            />
                             <Text style={[mainStyles.text, mainStyles.tcb_TextDate]}>
                                 {timePass}
                             </Text>

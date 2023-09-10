@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { RootSiblingParent } from 'react-native-root-siblings';
-import { Provider, useDispatch } from 'react-redux';
+import { Provider } from 'react-redux';
 import './config';
-import SetUp from './screens/setUp';
 import SignIn from './screens/signIn';
 import SignUp from './screens/singUp';
 import Home from './screens/home';
-import Settings from './screens/settings';
-import store from './store';
-import { bootstrap } from './components/bootsrap';
-import { Text, View } from 'react-native';
 import Main from './screens/main';
+import Settings from './screens/settings';
+import PasswordReset from './screens/passwordReset';
+import store from './store';
+
 
 
 export default function App() {
@@ -30,10 +29,10 @@ export default function App() {
             >
               <Stack.Screen name='Home' component={Home} options={{ headerShow: false }} />
               <Stack.Screen name='Main' component={Main} options={{ headerShow: false }} />
-              <Stack.Screen name='SetUp' component={SetUp} options={{ headerShow: false }} />
               <Stack.Screen name='SignIn' component={SignIn} options={{ headerShow: false }} />
               <Stack.Screen name='SignUp' component={SignUp} options={{ headerShow: false }} />
               <Stack.Screen name='Settings' component={Settings} options={{ headerShow: false }} />
+              <Stack.Screen name='PasswordReset' component={PasswordReset} options={{ headerShow: false }} />
             </Stack.Navigator>
           <StatusBar style="auto" />
         </NavigationContainer>

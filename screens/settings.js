@@ -2,19 +2,21 @@ import { useEffect, useState, useRef } from 'react';
 import { Text, View, SafeAreaView, TouchableOpacity, ScrollView, KeyboardAvoidingView, Image, Alert, TextInput, ActionSheetIOS, Platform, Button } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
+import { signOut } from 'firebase/auth';
 import { settingsStyles } from '../assets/styles/settings';
+import CheckBox from '../components/checkBox';
 import BottomSheetSchedule from '../components/bottomSheetSchedule';
 import ScheduleItem from '../components/scheduleItem';
 import { Icon } from 'react-native-elements'
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { activeNameStored, activePhoto, userId, setUpDone } from '../constants/constants';
+import { activeNameStored, activePhoto, userId, setUpDone, notificationsStatus } from '../constants/constants';
 import Moment from 'moment';
 import { lnObj } from '../constants/language';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadSchedules, addChild, setBottomSheetVisible, editChild } from '../store/actions/records';
+import { loadSchedules, addChild, setBottomSheetVisible, editChild, setActiveChild } from '../store/actions/records';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 
@@ -28,7 +30,7 @@ Notifications.setNotificationHandler({
 
 
 export default function Settings({ navigation }) {
-    const [activeChild, setActiveChild] = useState([])
+    //const [activeChild, setActiveChild] = useState([])
     const [addNewChildState, setAddNewChildState] = useState(false)
     const [pickedImagePath, setPickedImagePath] = useState('');
     const [gender, setGender] = useState('male');
@@ -43,7 +45,8 @@ export default function Settings({ navigation }) {
     const [activeScheduleId, setActiveScheduleId] = useState()
     const [isActiveButton, setIsActiveButton] = useState(false)
     const [changeType, setChangeType] = useState('add')
-    const [iosKeyboardPosition, setIosKeyboardPosition] = useState('padding')
+    const [iosKeyboardPosition, setIosKeyboardPosition] = useState('padding');
+    const [isChecked, setChecked] = useState(false);
 
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState(false);
@@ -61,33 +64,57 @@ export default function Settings({ navigation }) {
             console.log(response);
         });
 
+        checkNotificationsStatus();
+
         return () => {
-            console.log('remove all notifications')
+            //console.log('remove all notifications')
             //Notifications.removeNotificationSubscription(notificationListener.current);
             //Notifications.removeNotificationSubscription(responseListener.current);
         };
     }, []);
+
+    const checkNotificationsStatus = async () => {
+        try {
+            const values = await AsyncStorage.multiGet([notificationsStatus, setUpDone]);
+            console.log(values)
+            if (values[1][1] == 'true') {
+                console.log(values[0][1])
+                setChecked(values[0][1] == 'true' ? true : false)
+            } else {
+                setChecked(true)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     async function schedulePushNotification() {
         Notifications.removeNotificationSubscription(notificationListener.current);
         Notifications.removeNotificationSubscription(responseListener.current);
         Notifications.cancelAllScheduledNotificationsAsync()
 
-        for (let i = 0; i < schedule.length; i++) {
-            let triggerSc
-            let hours = new Date(schedule[i].time).getHours()
-            let minutes = new Date(schedule[i].time).getMinutes()
-            console.log('create notification')
-            Platform.OS === 'android' ? triggerSc = { hour: hours, minute: minutes, repeats: true, } : triggerSc = { type: 'daily', hour: hours, minute: minutes }
-            await Notifications.scheduleNotificationAsync({
-                content: {
-                    title: `Пришло время ${schedule[i].type == 'feeding' ? 'есть' : 'спать'}!`,
-                    body: `Подходит время для ${schedule[i].name}`,
-                    data: { data: 'goes here' },
-                },
-                trigger: triggerSc
-            });
+        await AsyncStorage.multiSet([[notificationsStatus, isChecked ? 'true' : 'false']]).then(() => {
+
+        }).catch((error) => { console.error(error) })
+
+        if (isChecked) {
+            for (let i = 0; i < schedule.length; i++) {
+                let triggerSc
+                let hours = new Date(schedule[i].time).getHours()
+                let minutes = new Date(schedule[i].time).getMinutes()
+                console.log('create notification')
+                Platform.OS === 'android' ? triggerSc = { hour: hours, minute: minutes, repeats: true, } : triggerSc = { type: 'daily', hour: hours, minute: minutes }
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: `Пришло время ${schedule[i].type == 'feeding' ? 'есть' : 'спать'}!`,
+                        body: `Подходит время для ${schedule[i].name}`,
+                        data: { data: 'goes here' },
+                    },
+                    trigger: triggerSc
+                });
+            }
         }
+
     }
 
     async function requestPermissionsAsync() {
@@ -155,15 +182,19 @@ export default function Settings({ navigation }) {
     });
 
     useEffect(() => {
-        setActiveChild(child)
-        setChildName(child[0].name)
-        setDate(new Date(child[0].dob))
-        setGender(child[0].gender)
-        setPickedImagePath(child[0].photo)
+        if (child.length > 0) {
+            setActiveChild(child)
+            setChildName(child[0].name)
+            setDate(new Date(child[0].dob))
+            setGender(child[0].gender)
+            setPickedImagePath(child[0].photo)
+        }
     }, [child])
 
     useEffect(() => {
-        dispatch(loadSchedules(userId, childId));
+        if (child.length > 0) {
+            dispatch(loadSchedules(userId, childId));
+        }
     }, [dispatch, userId]);
 
     const schedule = useSelector((state) => {
@@ -171,10 +202,14 @@ export default function Settings({ navigation }) {
     });
 
     useEffect(() => {
-        if (childName.length >= 2) {
+        let f = schedule.filter(item => item.type == 'feeding').length
+        let s = schedule.filter(item => item.type == 'sleep').length
+        if (childName.length >= 2 && f >= 1 && s >= 1) {
             setIsActiveButton(true)
+        } else {
+            setIsActiveButton(false)
         }
-    }, [childName])
+    }, [childName, schedule])
 
     const onChangeDate = (event, selectedDate) => {
         const currentDate = selectedDate;
@@ -261,27 +296,66 @@ export default function Settings({ navigation }) {
             return
         }
 
-        const childRecord = {
-            userId: userId,
-            childrenID: childId,
-            name: childName,
-            dob: Moment(dateOfBirth).format("YYYY-MM-DD"),
-            gender: gender,
-            photo: pickedImagePath,
-        }
+        if (child.length > 0) {
+            const childRecord = {
+                userId: userId,
+                childrenID: childId,
+                name: childName,
+                dob: Moment(dateOfBirth).format("YYYY-MM-DD"),
+                gender: gender,
+                photo: pickedImagePath,
+            }
 
-        //console.log('childRecord=>', childRecord)   
+            try {
+                dispatch(editChild(childRecord));
+                moveHome()
+            } catch (error) {
+                console.log('error settings try catch child length > 0')
+                console.log(error)
+            }
+        } else {
+            await AsyncStorage.multiSet([[setUpDone, 'true']]).then(async () => {
+                const childRecordAdd = {
+                    userId: userId,
+                    name: childName,
+                    dob: Moment(dateOfBirth).format("YYYY-MM-DD"),
+                    gender: gender,
+                    photo: pickedImagePath
+                }
+                try {
+                    console.log(childRecordAdd)
+                    dispatch(addChild(childRecordAdd));
+                    dispatch(setActiveChild({ userId: userId }));
+                    moveHome()
+                } catch (error) {
+                    console.log('error settings try catch child length < 0')
+                    console.log('error')
+                    console.log(error)
+                }
 
-        try {
-            dispatch(editChild(childRecord));
-            moveHome()
-        } catch (error) {
-            console.log('error')
+            }).catch((error) => { console.error(error) })
         }
     }
 
     const moveHome = () => {
-        navigation.push('Main')
+        navigation.push('Home')
+    }
+
+    const moveToSignIn = () => {
+        navigation.push('SignIn')
+    }
+
+    const logut = async () => {
+        try {
+            await signOut().then(async () => {
+                await AsyncStorage.multiRemove([])
+                moveToSignIn()
+              }).catch((error) => {
+                console.log(error)
+              })
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const setIsVisible = async (visibility) => {
@@ -504,6 +578,27 @@ export default function Settings({ navigation }) {
                                             ]}
                                         </ScrollView>
                                     </View>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={setUpStyles.setUpBlock}>
+                            <View style={setUpStyles.setUpHeader}>
+                                <View style={setUpStyles.row}>
+                                    <Text style={setUpStyles.setUpHeaderText}>{lnObj.turnOnNotifications[language]}</Text>
+                                    <TouchableOpacity onPress={() => { setChecked(!isChecked) }}>
+                                        <CheckBox
+                                            isChecked={isChecked}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={setUpStyles.setUpBlock}>
+                            <View style={setUpStyles.setUpHeader}>
+                                <View style={setUpStyles.row}>
+                                    <TouchableOpacity onPress={() => { logut() }}>
+                                        <Text>Log out</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>

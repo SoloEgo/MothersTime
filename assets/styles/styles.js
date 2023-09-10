@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     },
 
     haveAccountRow: {
-        marginTop: 20,
+        marginTop: 40,
     },
 
     haveAccountText: {
