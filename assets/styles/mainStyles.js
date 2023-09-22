@@ -1,10 +1,11 @@
 import { StyleSheet, Platform, StatusBar } from 'react-native';
+import themeChecker from '../../components/themeChecker'
 
 const mainStyles = StyleSheet.create({
 
     mainContainer: {
         fontFamily: 'Inter-Black',
-        backgroundColor: '#ffffff',
+        backgroundColor: themeChecker == 'dark' ? '#3e3e3e' : '#ffffff',
     },
 
     container: {
@@ -12,13 +13,15 @@ const mainStyles = StyleSheet.create({
         height: '100%',
         paddingLeft: 20,
         paddingRight: 20,
-        backgroundColor: '#ffffff',
+        backgroundColor: themeChecker == 'dark' ? '#3e3e3e' : '#ffffff',
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0
     },
 
     header: {
         paddingTop: 20,
-        paddingBottom: 20
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 
     row: {
@@ -64,7 +67,7 @@ const mainStyles = StyleSheet.create({
 
     text: {
         fontFamily: 'Inter-Regular',
-        color: '#3e3e3e'
+        color: themeChecker == 'dark' ? '#ffffff' : '#3e3e3e',
     },
 
     t_center: {
@@ -97,8 +100,8 @@ const mainStyles = StyleSheet.create({
 
     textInput: {
         width: '100%',
-        fontSize: 16,
-        paddingVertical: Platform.OS === "android" ? 5 : 10,
+        fontSize: 18,
+        paddingVertical: Platform.OS === "android" ? 5 : 12,
         paddingHorizontal: 15
     },
 
@@ -128,6 +131,18 @@ const mainStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         margin: 15
+    },
+
+    mainButtonLogout: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderRadius: 10,
+        padding: 8,
+        borderColor: '#E53935',
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 
     disabledMainButton: {
@@ -210,7 +225,6 @@ const mainStyles = StyleSheet.create({
     screenContainer: {
         width: '100%',
         height: '100%',
-        //backgroundColor: '#fff',
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 0 : 0
     },
 
@@ -222,7 +236,6 @@ const mainStyles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingLeft: 20,
         paddingRight: 20,
-        backgroundColor: '#f5f5f5'
     },
 
     headerUserCol: {
@@ -308,6 +321,7 @@ const mainStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         paddingBottom: 5,
+        justifyContent: 'space-between'
     },
 
     h2_notBold: {
@@ -356,7 +370,7 @@ const mainStyles = StyleSheet.create({
     bottomMeuButton: {
         width: 45,
         aspectRatio: '1/1',
-        borderRadius: 10,
+        borderRadius: 13,
         justifyContent: 'center',
         alignItems: 'center'
     },
@@ -384,7 +398,7 @@ const mainStyles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 4,
         paddingHorizontal: 10,
-        borderRadius: 17,
+        borderRadius: 15,
         marginVertical: 15,
         marginHorizontal: 5,
         elevation: 1,
@@ -433,14 +447,14 @@ const mainStyles = StyleSheet.create({
         backgroundColor: '#FF5995',
         aspectRatio: '1/1',
         padding: 5,
-        borderRadius: 10,
+        borderRadius: 11,
         marginEnd: 20
     },
     rtpIconPast: {
         backgroundColor: '#d3d3d3',
         aspectRatio: '1/1',
         padding: 5,
-        borderRadius: 10,
+        borderRadius: 11,
         marginEnd: 20
     },
 
@@ -543,6 +557,11 @@ const mainStyles = StyleSheet.create({
 
     checkbox: {
         padding: 5
+    },
+
+    scrollViewMain: {
+        width: '100%',
+        height: '100%',
     },
 
 })

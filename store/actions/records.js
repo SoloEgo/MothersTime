@@ -134,7 +134,7 @@ export const editChild = ({ userId, childrenID, name, dob, gender, photo }) => a
     const result = await DB.editChild({ userId, childrenID, name, dob, gender, photo });
     dispatch({
         type: EDIT_CHILD,
-        payload: result,
+        payload: { userId, childrenID, name, dob, gender, photo },
     });
 }
 

@@ -36,8 +36,8 @@ export const lnObj = {
         ru: `С возвращением!`
     },
     helloTextH3: {
-        en: `It looks like you are not registered yet \n Let's create your account! \n We will store your data in cloud ☁`,
-        ru: `Похоже у Вас пока нет аккаунта \n Давайте его создадим! \n Мы сохраним ваши данные в облаке ☁`
+        en: `It looks like you are not registered yet \n Let's create your account!`,
+        ru: `Похоже у Вас пока нет аккаунта \n Давайте его создадим!`
     },
     welcomBackTextH3: {
         en: `Feel free to Sig in`,
@@ -58,6 +58,10 @@ export const lnObj = {
     signIn: {
         en: `Sign In`,
         ru: `Войти`
+    },
+    foregetPassword:{
+        en: 'Forget password?',
+        ru: 'Забыли пароль?'
     },
     resetPasswordHeader:{
         en: 'Reset password',
@@ -142,10 +146,6 @@ export const lnObj = {
     feeding: {
         en: `Feeding time`,
         ru: `Время кормления:`
-    },
-    sleep: {
-        en: `Sleep time`,
-        ru: `Время отхода ко сну`
     },
     feedingMainHeader: {
         en: `Meals`,
@@ -241,5 +241,18 @@ export const lnObj = {
     turnOnNotifications: {
         en: 'Would you like to recieve notifications?',
         ru: 'Включить напоминания?'
-    }
+    },
+
+    placeHolderExp: {
+        en: 'e.g.',
+        ru: 'Например'
+    },
+    breakfast: {
+        en: 'Breakfast',
+        ru: 'Завтрак'
+    },
+    dayDream: {
+        en: 'Day dream',
+        ru: 'Дневной сон'
+    },
 };

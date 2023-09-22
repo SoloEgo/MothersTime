@@ -9,12 +9,14 @@ import Moment from 'moment';
 // import { lnObj } from '../constants/language';
 // import { addSchedule, setBottomSheetVisible, removeSchedule } from '../store/actions/records';
 import { Icon } from 'react-native-elements'
+import { themeStyles } from '../assets/styles/themeStyles';
+import { mainStyles } from '../assets/styles/mainStyles';
 
 export default function ScheduleItem(props) {
     return (
-        <View key={props.scheduleId} style={setUpStyles.setUpCard}>
+        <View key={props.scheduleId} style={[setUpStyles.setUpCard, themeStyles.backgroundColor]}>
             <View style={setUpStyles.setUpCardTitle}>
-                <Text style={setUpStyles.setUpCardName}>{props.name}</Text>
+                <Text style={[setUpStyles.setUpCardName, mainStyles.text]}>{props.name}</Text>
             </View>
             <View style={setUpStyles.setUpCardRow}>
                 <View style={setUpStyles.setUpCardIcon}>
@@ -34,7 +36,7 @@ export default function ScheduleItem(props) {
                         />
                     }
                 </View>
-                <View style={setUpStyles.setUpCardTextHolder}><Text style={setUpStyles.setUpCardText}>{Moment(props.time).format('HH:mm')}</Text></View>
+                <View style={setUpStyles.setUpCardTextHolder}><Text style={[setUpStyles.setUpCardText, mainStyles.text]}>{Moment(props.time).format('HH:mm')}</Text></View>
             </View>
         </View>
     )

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Text, View, Animated } from 'react-native';
 import { mainStyles } from '../assets/styles/mainStyles';
+import { themeStyles } from '../assets/styles/themeStyles';
 import { Icon } from 'react-native-elements'
 import { lnObj } from '../constants/language';
 import { useDispatch, useSelector } from 'react-redux';
@@ -47,7 +48,7 @@ export default function TimeCheckBlock(props) {
         <View style={mainStyles.timeCheckBlock}>
             <View style={mainStyles.timeCheckBlockWrappers}>
                 {timePass ?
-                    <View style={mainStyles.tcb_pill}>
+                    <View style={[mainStyles.tcb_pill, themeStyles.backgroundColor]}>
                         <View style={[mainStyles.tcb_timePass, mainStyles.row]}>
                             <Icon
                                 name={ type == 'feeding' ? index == 0 ? 'time-outline' : 'checkmark-circle-outline' : 'accessibility'}

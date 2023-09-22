@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     },
 
     signUpFormIcon: {
-        marginRight: '5%',
+        marginLeft: 20,
     },
 
     confirmButton: {
@@ -142,7 +142,8 @@ const styles = StyleSheet.create({
     },
 
     clearBtn: {
-        padding: '5%',
+        paddingVertical: 15,
+        paddingHorizontal: 20,
     },
 
     clearBtnText: {

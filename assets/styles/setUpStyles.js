@@ -35,14 +35,14 @@ const setUpStyles = StyleSheet.create({
 
     setUpHeaderText: {
         fontFamily: 'Inter-Regular',
-        fontSize: 20
+        fontSize: 18
     },
 
     setUpContentSlider: {
         borderColor: '#f5f5f5',
         overflow: 'visible',
         minHeight: 100,
-        paddingHorizontal: 20
+        paddingHorizontal: Platform.OS === "android" ? 20 : 10
     },
 
     childForm:{
@@ -106,8 +106,8 @@ const setUpStyles = StyleSheet.create({
     },
 
     childFormInputsBlock_2: {
-        width: '40%',
-        marginTop: 10,
+        width: '45%',
+        marginTop: 10
     },
 
     childFormInputs: {
@@ -224,10 +224,27 @@ const setUpStyles = StyleSheet.create({
     },
 
     iosDateInput: {
-        marginLeft: 0,
+        marginLeft: -20,
         alignItems: 'flex-start',
         justifyContent: 'flex-start'
-    }
+    },
+
+    setUpBlockWrapper: {
+        marginVertical: 10,
+        paddingVertical: 10,
+        backgroundColor: '#f5f5f5'
+    },
+
+    setUpBlockWrapperHeader: {
+        paddingVertical: 5,
+    },
+    
+    setUpBlockWrapperHeaderText:{
+        fontSize: 20,
+        textAlign: 'center',
+        marginBottom: 20,
+        fontFamily: 'Inter-Bold'
+    },
 
 })
 

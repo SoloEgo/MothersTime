@@ -3,6 +3,7 @@ import { Text, View, SafeAreaView, TouchableOpacity, ScrollView, KeyboardAvoidin
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
 import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 import { settingsStyles } from '../assets/styles/settings';
 import CheckBox from '../components/checkBox';
 import BottomSheetSchedule from '../components/bottomSheetSchedule';
@@ -16,9 +17,10 @@ import Moment from 'moment';
 import { lnObj } from '../constants/language';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadSchedules, addChild, setBottomSheetVisible, editChild, setActiveChild } from '../store/actions/records';
+import { loadSchedules, addChild, setBottomSheetVisible, editChild, setActiveChild, loadChild } from '../store/actions/records';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import { themeStyles } from '../assets/styles/themeStyles';
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -47,13 +49,30 @@ export default function Settings({ navigation }) {
     const [changeType, setChangeType] = useState('add')
     const [iosKeyboardPosition, setIosKeyboardPosition] = useState('padding');
     const [isChecked, setChecked] = useState(false);
+    const [showLogOut, setShowLogOut] = useState(false)
 
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState(false);
     const notificationListener = useRef();
     const responseListener = useRef();
 
+    const dispatch = useDispatch();
+
+    const getAsyncData = async () => {
+        const values = await AsyncStorage.multiGet([setUpDone]);
+        if (values[0][1] == 'true') {
+            setShowLogOut(true)
+        } else {
+            setShowLogOut(false)
+        }
+    }
+
     useEffect(() => {
+
+        dispatch(loadChild(userId))
+
+        getAsyncData()
+
         registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -76,9 +95,7 @@ export default function Settings({ navigation }) {
     const checkNotificationsStatus = async () => {
         try {
             const values = await AsyncStorage.multiGet([notificationsStatus, setUpDone]);
-            console.log(values)
             if (values[1][1] == 'true') {
-                console.log(values[0][1])
                 setChecked(values[0][1] == 'true' ? true : false)
             } else {
                 setChecked(true)
@@ -161,13 +178,11 @@ export default function Settings({ navigation }) {
             console.log('token=>');
             console.log(token);
         } else {
-            alert('Must use physical device for Push Notifications');
+            console.log('Must use physical device for Push Notifications');
         }
 
         return token;
     }
-
-    const dispatch = useDispatch();
 
     const language = useSelector((state) => {
         return state.records.locale
@@ -179,7 +194,7 @@ export default function Settings({ navigation }) {
 
     const child = useSelector((state) => {
         return state.records.activeChild
-    });
+    })
 
     useEffect(() => {
         if (child.length > 0) {
@@ -297,6 +312,7 @@ export default function Settings({ navigation }) {
         }
 
         if (child.length > 0) {
+            console.log('editting child')
             const childRecord = {
                 userId: userId,
                 childrenID: childId,
@@ -308,12 +324,14 @@ export default function Settings({ navigation }) {
 
             try {
                 dispatch(editChild(childRecord));
+                await AsyncStorage.multiSet([[setUpDone, 'true']])
                 moveHome()
             } catch (error) {
                 console.log('error settings try catch child length > 0')
                 console.log(error)
             }
         } else {
+            console.log('createing sch')
             await AsyncStorage.multiSet([[setUpDone, 'true']]).then(async () => {
                 const childRecordAdd = {
                     userId: userId,
@@ -347,12 +365,12 @@ export default function Settings({ navigation }) {
 
     const logut = async () => {
         try {
-            await signOut().then(async () => {
-                await AsyncStorage.multiRemove([])
+            await auth.signOut().then(async () => {
+                await AsyncStorage.clear()
                 moveToSignIn()
-              }).catch((error) => {
+            }).catch((error) => {
                 console.log(error)
-              })
+            })
         } catch (error) {
             console.log(error)
         }
@@ -373,11 +391,26 @@ export default function Settings({ navigation }) {
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? iosKeyboardPosition : ''}>
-            <SafeAreaView style={setUpStyles.wrapper}>
-                <View style={setUpStyles.container}>
+            <SafeAreaView style={[setUpStyles.wrapper, themeStyles.backgroundColor]}>
+                <View style={[setUpStyles.container, themeStyles.backgroundColor]}>
                     <ScrollView style={setUpStyles.scrollViewMain}>
-                        <View style={mainStyles.header}>
-                            <Text style={mainStyles.h1}>{lnObj.settings[language]}</Text>
+                        <View style={[mainStyles.header, mainStyles.row]}>
+                            <Text style={[mainStyles.h1, mainStyles.text]}>{lnObj.settings[language]}</Text>
+                            {showLogOut ?
+                                <View style={[setUpStyles.setUpBlock, { position: 'absolute', right: 0 }]}>
+                                    <View style={setUpStyles.setUpHeader}>
+                                        <View style={setUpStyles.row}>
+                                            <TouchableOpacity onPress={() => { logut() }} style={mainStyles.mainButtonLogout}>
+                                                <Icon
+                                                    name='log-out-outline'
+                                                    type='ionicon'
+                                                    color='#E53935'
+                                                    size={20}
+                                                />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </View> : ''}
                         </View>
                         <View style={setUpStyles.childFormHolder}>
                             <View style={setUpStyles.childFormMainInfo}>
@@ -410,11 +443,11 @@ export default function Settings({ navigation }) {
 
                                 <View style={setUpStyles.childFormInputsBlock}>
                                     <View style={setUpStyles.childFormInputsLabel}>
-                                        <Text style={setUpStyles.childFormInputsLabelText}>{lnObj.childsName[language]}</Text>
+                                        <Text style={[setUpStyles.childFormInputsLabelText, mainStyles.text]}>{lnObj.childsName[language]}</Text>
                                     </View>
-                                    <View style={[setUpStyles.textInWrap]}>
+                                    <View style={[setUpStyles.textInWrap, themeStyles.backgroundColorLightDark]}>
                                         <TextInput
-                                            style={mainStyles.textInput}
+                                            style={[mainStyles.textInput, mainStyles.text]}
                                             value={childName}
                                             onFocus={() => {
                                                 setIosKeyboardPosition('padding')
@@ -427,7 +460,7 @@ export default function Settings({ navigation }) {
                                 <View style={setUpStyles.childFormInputsRow}>
                                     <View style={setUpStyles.childFormInputsBlock_2}>
                                         <View style={setUpStyles.childFormInputsLabel}>
-                                            <Text style={setUpStyles.childFormInputsLabelText}>{lnObj.childsBirthDate[language]}</Text>
+                                            <Text style={[setUpStyles.childFormInputsLabelText, mainStyles.text]}>{lnObj.childsBirthDate[language]}</Text>
                                         </View>
                                         {Platform.OS === 'android' ?
                                             <View style={[setUpStyles.textInWrap, mainStyles.textInputWrapper]}>
@@ -473,118 +506,122 @@ export default function Settings({ navigation }) {
                                                 </Picker>
                                             </View>
                                             :
-                                            <TouchableOpacity onPress={showActionSheet} style={setUpStyles.genderPresSheet}>
-                                                <Text style={setUpStyles.genderPresSheetText}>{gender == 'male' ? lnObj.male[language] : lnObj.female[language]}</Text>
+                                            <TouchableOpacity onPress={showActionSheet} style={[setUpStyles.genderPresSheet, themeStyles.backgroundColorLightDark]}>
+                                                <Text style={[setUpStyles.genderPresSheetText, mainStyles.text]}>{gender == 'male' ? lnObj.male[language] : lnObj.female[language]}</Text>
                                             </TouchableOpacity>
                                         }
                                     </View>
                                 </View>
                             </View>
-                            <View style={setUpStyles.setUpBlockWrapper}>
-                                <View style={setUpStyles.setUpBlock}>
-                                    <View style={setUpStyles.setUpHeader}>
-                                        <View style={setUpStyles.row}>
-                                            <Text style={setUpStyles.setUpHeaderText}>{lnObj.feeding[language]}</Text>
-                                            <TouchableOpacity onPress={() => {
-                                                setIsVisible(true)
-                                                setChangeType('add')
-                                                setActiveType('feeding')
-                                                setIosKeyboardPosition('position')
-                                            }} style={mainStyles.mainPlusBtn}>
-                                                <Icon
-                                                    name='add-outline'
-                                                    type='ionicon'
-                                                    color='#fff'
-                                                    size={20}
-                                                    style={setUpStyles.signUpFormIcon}
-                                                />
-                                            </TouchableOpacity>
+                            <View style={[setUpStyles.setUpBlockWrapper, themeStyles.backgroundColorDark]}>
+                                <View style={[ setUpStyles.setUpBlockWrapperHeader]}><Text style={[mainStyles.text, setUpStyles.setUpBlockWrapperHeaderText]}>Желаемый распорядок дня</Text></View>
+                                <View style={setUpStyles.scheduleBlock}>
+                                    <View style={setUpStyles.setUpBlock}>
+                                        <View style={setUpStyles.setUpHeader}>
+                                            <View style={setUpStyles.row}>
+                                                <Text style={[setUpStyles.setUpHeaderText, mainStyles.text]}>{lnObj.feeding[language]}</Text>
+                                                <TouchableOpacity onPress={() => {
+                                                    setIsVisible(true)
+                                                    setChangeType('add')
+                                                    setActiveType('feeding')
+                                                    setIosKeyboardPosition('position')
+                                                }} style={mainStyles.mainPlusBtn}>
+                                                    <Icon
+                                                        name='add-outline'
+                                                        type='ionicon'
+                                                        color='#fff'
+                                                        size={20}
+                                                        style={setUpStyles.signUpFormIcon}
+                                                    />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                        <View style={setUpStyles.setUpContentWrapper}>
+                                            <ScrollView style={setUpStyles.setUpContentSlider}
+                                                horizontal={true}
+                                                decelerationRate='fast'
+                                                centerContent={true}
+                                                showsHorizontalScrollIndicator={false}
+                                                pagingEnabled='true'
+                                                contentContainerStyle={{
+                                                    flexGrow: 1,
+                                                    alignContent: 'center',
+                                                    alignItems: 'flex-start',
+                                                    padding: 10,
+                                                }}
+                                            >
+                                                {[
+                                                    schedule.filter(item => item.type == "feeding").map((element, i) => {
+                                                        return (
+                                                            <TouchableOpacity key={element.scheduleId}
+                                                                onPress={() => {
+                                                                    editSchedule(element.scheduleId, element.name, element.time, 'feeding')
+                                                                    setIosKeyboardPosition('position')
+                                                                }}>
+                                                                <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="feeding" />
+                                                            </TouchableOpacity>
+                                                        )
+                                                    })
+                                                ]}
+                                            </ScrollView>
                                         </View>
                                     </View>
-                                    <View style={setUpStyles.setUpContentWrapper}>
-                                        <ScrollView style={setUpStyles.setUpContentSlider}
-                                            horizontal={true}
-                                            decelerationRate='fast'
-                                            centerContent={true}
-                                            showsHorizontalScrollIndicator={false}
-                                            pagingEnabled='true'
-                                            contentContainerStyle={{
-                                                flexGrow: 1,
-                                                alignContent: 'center',
-                                                alignItems: 'flex-start',
-                                                padding: 10,
-                                            }}
-                                        >
-                                            {[
-                                                schedule.filter(item => item.type == "feeding").map((element, i) => {
-                                                    return (
-                                                        <TouchableOpacity key={element.scheduleId}
-                                                            onPress={() => {
-                                                                editSchedule(element.scheduleId, element.name, element.time, 'feeding')
+                                    <View style={setUpStyles.setUpBlock}>
+                                        <View style={setUpStyles.setUpHeader}>
+                                            <View style={setUpStyles.row}>
+                                                <Text style={[setUpStyles.setUpHeaderText, mainStyles.text]}>{lnObj.sleep[language]}</Text>
+                                                <TouchableOpacity onPress={() => {
+                                                    setIsVisible(true)
+                                                    setActiveType('sleep')
+                                                    setChangeType('add')
+                                                    setIosKeyboardPosition('position')
+                                                }} style={mainStyles.mainPlusBtn}>
+                                                    <Icon
+                                                        name='add-outline'
+                                                        type='ionicon'
+                                                        color='#fff'
+                                                        size={20}
+                                                        style={setUpStyles.signUpFormIcon}
+                                                    />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                        <View style={setUpStyles.setUpContentWrapper}>
+                                            <ScrollView style={setUpStyles.setUpContentSlider}
+                                                horizontal={true}
+                                                decelerationRate='fast'
+                                                centerContent={false}
+                                                showsHorizontalScrollIndicator={false}
+                                                contentContainerStyle={{
+                                                    flexGrow: 1,
+                                                    alignContent: 'center',
+                                                    alignItems: 'flex-start',
+                                                    padding: 10,
+                                                }}
+                                            >
+                                                {[
+                                                    schedule.filter(item => item.type == "sleep").map((element, i) => {
+                                                        return (
+                                                            <TouchableOpacity key={element.scheduleId} onPress={() => {
+                                                                editSchedule(element.scheduleId, element.name, element.time, 'sleep')
                                                                 setIosKeyboardPosition('position')
                                                             }}>
-                                                            <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="feeding" />
-                                                        </TouchableOpacity>
-                                                    )
-                                                })
-                                            ]}
-                                        </ScrollView>
-                                    </View>
-                                </View>
-                                <View style={setUpStyles.setUpBlock}>
-                                    <View style={setUpStyles.setUpHeader}>
-                                        <View style={setUpStyles.row}>
-                                            <Text style={setUpStyles.setUpHeaderText}>{lnObj.sleep[language]}</Text>
-                                            <TouchableOpacity onPress={() => {
-                                                setIsVisible(true)
-                                                setActiveType('sleep')
-                                                setChangeType('add')
-                                                setIosKeyboardPosition('position')
-                                            }} style={mainStyles.mainPlusBtn}>
-                                                <Icon
-                                                    name='add-outline'
-                                                    type='ionicon'
-                                                    color='#fff'
-                                                    size={20}
-                                                    style={setUpStyles.signUpFormIcon}
-                                                />
-                                            </TouchableOpacity>
+                                                                <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="sleep" />
+                                                            </TouchableOpacity>
+                                                        )
+                                                    })
+                                                ]}
+                                            </ScrollView>
                                         </View>
                                     </View>
-                                    <View style={setUpStyles.setUpContentWrapper}>
-                                        <ScrollView style={setUpStyles.setUpContentSlider}
-                                            horizontal={true}
-                                            decelerationRate='fast'
-                                            centerContent={false}
-                                            showsHorizontalScrollIndicator={false}
-                                            contentContainerStyle={{
-                                                flexGrow: 1,
-                                                alignContent: 'center',
-                                                alignItems: 'flex-start',
-                                                padding: 10,
-                                            }}
-                                        >
-                                            {[
-                                                schedule.filter(item => item.type == "sleep").map((element, i) => {
-                                                    return (
-                                                        <TouchableOpacity key={element.scheduleId} onPress={() => {
-                                                            editSchedule(element.scheduleId, element.name, element.time, 'sleep')
-                                                            setIosKeyboardPosition('position')
-                                                        }}>
-                                                            <ScheduleItem time={element.time} scheduleId={element.scheduleId} name={element.name} type="sleep" />
-                                                        </TouchableOpacity>
-                                                    )
-                                                })
-                                            ]}
-                                        </ScrollView>
-                                    </View>
                                 </View>
+
                             </View>
                         </View>
                         <View style={setUpStyles.setUpBlock}>
                             <View style={setUpStyles.setUpHeader}>
                                 <View style={setUpStyles.row}>
-                                    <Text style={setUpStyles.setUpHeaderText}>{lnObj.turnOnNotifications[language]}</Text>
+                                    <Text style={[setUpStyles.setUpHeaderText, mainStyles.text]}>{lnObj.turnOnNotifications[language]}</Text>
                                     <TouchableOpacity onPress={() => { setChecked(!isChecked) }}>
                                         <CheckBox
                                             isChecked={isChecked}
@@ -593,17 +630,9 @@ export default function Settings({ navigation }) {
                                 </View>
                             </View>
                         </View>
-                        <View style={setUpStyles.setUpBlock}>
-                            <View style={setUpStyles.setUpHeader}>
-                                <View style={setUpStyles.row}>
-                                    <TouchableOpacity onPress={() => { logut() }}>
-                                        <Text>Log out</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
+
                     </ScrollView>
-                    <View style={setUpStyles.childFormConfirm}>
+                    <View style={[setUpStyles.childFormConfirm, themeStyles.backgroundColor]}>
                         <TouchableOpacity style={[mainStyles.mainButton, !isActiveButton ? mainStyles.disabledMainButton : '']} onPress={() => {
                             saveChild()
                             schedulePushNotification()

@@ -9,7 +9,7 @@ import { lnObj } from '../constants/language';
 import HeaderImage from './headerImage';
 import themeChecker from '../components/themeChecker'
 
-export default function HeaderComponent(props) {
+export default function StatisticSleep(props) {
     const [popupActive, setPopupActive] = useState(false);
     const [buttonDisabled, setButtonDisabled] = useState(false)
     const child = props.child

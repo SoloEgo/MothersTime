@@ -1,4 +1,4 @@
-import { Text, TextInput, View, Pressable, KeyboardAvoidingView, ImageBackground } from 'react-native';
+import { Text, TextInput, View, Pressable, KeyboardAvoidingView, ImageBackground, TouchableOpacity } from 'react-native';
 import { styles } from '../assets/styles/styles'
 import { mainStyles } from '../assets/styles/mainStyles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +23,19 @@ export default function SignUp({ navigation }) {
   const language = useSelector((state) => {
     return state.records.locale
   });
+
+  useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      console.log(e.data.action.type)
+      if(e.data.action.type == 'GO_BACK'){
+        console.log('stop')
+        e.preventDefault();
+      }else{
+        console.log('move')
+        navigation.dispatch(e.data.action)
+      }
+    });
+  }, [navigation]);
 
   useEffect(() => {
     if (validator.isEmail(email) && password.length >= CODE_LENGTH) {
@@ -64,7 +77,7 @@ export default function SignUp({ navigation }) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : ''}>
       <View style={styles.wrapper}>
         <LinearGradient
-          colors={['#FF98BD', '#7AAFFF']}
+          colors={['#FF5995', '#5379FF']}
           start={[0, 0]}
           end={[1, 0]}
           style={styles.container}
@@ -113,12 +126,12 @@ export default function SignUp({ navigation }) {
                   placeholderTextColor="#d3d3d3"
                 ></TextInput>
               </View>
-              <Pressable style={[styles.confirmButton, isDisabled ? styles.disabledConfirmButton : '']} onPress={createAccount} disabled={isDisabled} >
+              <TouchableOpacity style={[styles.confirmButton, isDisabled ? styles.disabledConfirmButton : '']} onPress={createAccount} disabled={isDisabled} >
                 <Text style={styles.confirmButtonText}>{lnObj.signUp[language]}</Text>
-              </Pressable>
+              </TouchableOpacity>
               <View style={[styles.row, styles.haveAccountRow]}>
                 <Text style={styles.haveAccountText}>{lnObj.haveAccount[language]}</Text>
-                <Pressable style={styles.clearBtn} onPress={moveSignIn} ><Text style={styles.clearBtnText}>{lnObj.signInBtn[language]}</Text></Pressable>
+                <TouchableOpacity style={styles.clearBtn} onPress={moveSignIn} ><Text style={styles.clearBtnText}>{lnObj.signInBtn[language]}</Text></TouchableOpacity>
               </View>
             </View>
           </View>

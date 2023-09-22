@@ -105,7 +105,6 @@ export class DB {
                 tx.executeSql("select * from children where userId = ?",
                     [userId],
                     (_, result) => {
-                        //console.log(result.rows._array)
                         resolve(result.rows._array)
                     },
                     (_, error) => {
@@ -204,6 +203,7 @@ export class DB {
     }
 
     static createRecord({ userId, childId, type, scheduleId, name, dateTime, dateTimeEnd, attr1 }) {
+        console.log('add record [db.js] =>', { userId, childId, type, scheduleId, name, dateTime, dateTimeEnd, attr1 })
         return new Promise((resolve, reject) => {
             db.transaction((tx) => {
                 tx.executeSql(

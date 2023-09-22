@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { emailKey, isNew, setUpDone, userId } from '../constants/constants';
 import SignUp from './singUp';
 import Main from "./main";
-import { Text, View } from 'react-native';
+import { Text, View, ActivityIndicator } from 'react-native';
 import { mainStyles } from "../assets/styles/mainStyles";
 import { useFocusEffect } from "@react-navigation/core";
 // import * as SplashScreen from 'expo-splash-screen';
@@ -11,6 +11,7 @@ import { bootstrap } from '../components/bootsrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, loadChild, wipeData } from '../store/actions/records';
 import Settings from "./settings";
+import { themeStyles } from "../assets/styles/themeStyles";
 
 //SplashScreen.preventAutoHideAsync();
 
@@ -71,8 +72,8 @@ export default function Home({ navigation }) {
 
   if (!appIsReady) {
     return (
-    <View style={mainStyles.preloaderView}>
-      <Text>LOADING...</Text>
+    <View style={[mainStyles.preloaderView, themeStyles.backgroundColor]}>
+      <ActivityIndicator size="small" color="#5379FF" />
     </View>
     )
   }

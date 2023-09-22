@@ -10,6 +10,7 @@ import SignUp from './screens/singUp';
 import Home from './screens/home';
 import Main from './screens/main';
 import Settings from './screens/settings';
+import Statistic from './screens/statistic';
 import PasswordReset from './screens/passwordReset';
 import store from './store';
 
@@ -32,6 +33,7 @@ export default function App() {
               <Stack.Screen name='SignIn' component={SignIn} options={{ headerShow: false }} />
               <Stack.Screen name='SignUp' component={SignUp} options={{ headerShow: false }} />
               <Stack.Screen name='Settings' component={Settings} options={{ headerShow: false }} />
+              <Stack.Screen name='Statistic' component={Statistic} options={{ headerShow: false }} />
               <Stack.Screen name='PasswordReset' component={PasswordReset} options={{ headerShow: false }} />
             </Stack.Navigator>
           <StatusBar style="auto" />

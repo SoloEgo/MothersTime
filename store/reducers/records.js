@@ -111,7 +111,7 @@ export const recordsReducer = (state = initialState, action) => {
         case EDIT_CHILD:
             return {
                 ...state,
-                activeChild: action.payload
+                activeChild: [{...action.payload}]
             }
         case SET_USER_ID:
             return {

@@ -1,20 +1,28 @@
-import { StyleSheet, Platform, StatusBar } from 'react-native';
-import { Appearance, useColorScheme } from 'react-native';
+import { StyleSheet} from 'react-native';
+import themeChecker from '../../components/themeChecker'
 
 
 const themeStyles = StyleSheet.create({
 
-    background: {
-        backgroundColor: '#3e3e3e',
+    backgroundColor: {
+        backgroundColor: themeChecker == 'dark' ? '#3e3e3e' : '#ffffff',
     },
 
-    // colorTextLight: {
-    //     color: '#3e3e3e'
-    // },
+    backgroundColorDark: {
+        backgroundColor: themeChecker == 'dark' ? '#2E2E2E' : '#f5f5f5',
+    },
 
-    // colorTextWhite: {
-    //     color: '#fff'
-    // },
+    backgroundColorLightDark: {
+        backgroundColor: themeChecker == 'dark' ? '#49494c' : '#EFEFF0',
+    },
+
+    colorTextLight: {
+        color: '#3e3e3e'
+    },
+
+    colorTextDark: {
+        color: '#fff'
+    },
 
     // textInputBackgroundLight: {
     //     backgroundColor: '#EFEFF0'

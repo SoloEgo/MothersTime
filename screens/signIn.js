@@ -1,4 +1,4 @@
-import { Text, TextInput, View, Pressable, KeyboardAvoidingView, ImageBackground } from 'react-native';
+import { Text, TextInput, View, Pressable, KeyboardAvoidingView, ImageBackground, TouchableOpacity } from 'react-native';
 import { styles } from '../assets/styles/styles'
 import { mainStyles } from '../assets/styles/mainStyles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -22,6 +22,19 @@ export default function SignIn({ navigation }) {
   const language = useSelector((state) => {
     return state.records.locale
   });
+
+  useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      console.log(e.data.action.type)
+      if(e.data.action.type == 'GO_BACK'){
+        console.log('stop')
+        e.preventDefault();
+      }else{
+        console.log('move')
+        navigation.dispatch(e.data.action)
+      }
+    });
+  }, [navigation]);
 
 
   useEffect(() => {
@@ -74,7 +87,7 @@ export default function SignIn({ navigation }) {
       <View style={styles.wrapper}>
 
         <LinearGradient
-          colors={['#FF98BD', '#7AAFFF']}
+          colors={['#FF5995', '#5379FF']}
           start={[0, 0]}
           end={[1, 0]}
           style={styles.container}
@@ -87,7 +100,6 @@ export default function SignIn({ navigation }) {
           />
           <View style={styles.regBlock}>
             <View style={styles.signUpText}>
-              {/* <LogoComponent width="130" height="135" style={styles.logoImg} /> */}
               <View style={styles.row}><Text style={styles.h1}>{lnObj.welcomeBack[language]}</Text><Text style={styles.hiEmoji}>👋</Text></View>
               <Text style={styles.h3}>{lnObj.welcomBackTextH3[language]}</Text>
             </View>
@@ -108,7 +120,7 @@ export default function SignIn({ navigation }) {
                   autoCapitalize="none"
                 ></TextInput>
               </View>
-              <View style={[mainStyles.textInputWrapper, {marginBottom: 0}]}>
+              <View style={[mainStyles.textInputWrapper, { marginBottom: 0 }]}>
                 <Icon
                   name='lock-closed-outline'
                   type='ionicon'
@@ -125,16 +137,16 @@ export default function SignIn({ navigation }) {
                   placeholderTextColor="#d3d3d3"
                 ></TextInput>
               </View>
-              <View style={[mainStyles.row, {marginBottom: 20}]}>
-                <View><Text style={styles.haveAccountText}>Забыли пароль?</Text></View>
-                <Pressable style={styles.clearBtn} onPress={moveResetPassword}><Text style={styles.clearBtnText}>{lnObj.resetPasswordButton[language]}</Text></Pressable>
+              <View style={[mainStyles.row, { marginBottom: 20 }]}>
+                <View><Text style={styles.haveAccountText}>{lnObj.foregetPassword[language]}</Text></View>
+                <TouchableOpacity style={styles.clearBtn} onPress={moveResetPassword}><Text style={styles.clearBtnText}>{lnObj.resetPasswordButton[language]}</Text></TouchableOpacity>
               </View>
-              <Pressable style={[styles.confirmButton, isDisabled ? styles.disabledConfirmButton : '']} onPress={signIn} disabled={isDisabled} >
+              <TouchableOpacity style={[styles.confirmButton, isDisabled ? styles.disabledConfirmButton : '']} onPress={signIn} disabled={isDisabled} >
                 <Text style={styles.confirmButtonText}>{lnObj.signIn[language]}</Text>
-              </Pressable>
+              </TouchableOpacity>
               <View style={[styles.haveAccountRow, mainStyles.row]}>
                 <Text style={styles.haveAccountText}>{lnObj.haveNotAccount[language]}</Text>
-                <Pressable style={styles.clearBtn} onPress={moveSignUp} ><Text style={styles.clearBtnText}>{lnObj.signUpBtn[language]}</Text></Pressable>
+                <TouchableOpacity style={styles.clearBtn} onPress={moveSignUp} ><Text style={styles.clearBtnText}>{lnObj.signUpBtn[language]}</Text></TouchableOpacity>
               </View>
             </View>
           </View>

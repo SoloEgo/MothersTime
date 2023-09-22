@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Text, View, Pressable, TouchableOpacity, Platform, Keyboard, ActionSheetIOS } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
+import { themeStyles } from '../assets/styles/themeStyles';
 import { bottomSheetStyles } from '../assets/styles/bottomSheetStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon } from 'react-native-elements'
@@ -42,6 +43,7 @@ export default function BottomSheetRecord(props) {
     })
 
     const schedules = schedulesRaw.filter(item => item.type == activeType)
+    //console.log(schedules)
 
     const setIsVisible = async (visibility) => {
         dispatch(setBottomRecordSheetVisible(visibility))
@@ -53,8 +55,12 @@ export default function BottomSheetRecord(props) {
         let minDiff = 0
         let resultIndex = 0
         for (let index = 0; index < schedules.length; index++) {
-            let b = Moment(schedules[index].time)
+            let b = Moment(Moment(new Date()).format('YYYY-MM-DD') +'T'+Moment(schedules[index].time).format('HH:mm:ss'))
             let c = Math.abs(Moment.duration(b.diff(a)))
+            // console.log('a=>',a)
+            // console.log('b=>',b)
+            // console.log('c=>',c)
+            // console.log('minDiff=>',minDiff)
             if (index == 0) {
                 minDiff = c
             } else {
@@ -63,6 +69,8 @@ export default function BottomSheetRecord(props) {
                     resultIndex = index
                 }
             }
+            
+            //console.log('minDiff=>',minDiff)
         }
         return resultIndex
     }
@@ -221,11 +229,11 @@ export default function BottomSheetRecord(props) {
                 setRecordDateEnd(null)
                 setRecordTimeEnd(null)
             }} ></Pressable>
-            <View style={bottomSheetStyles.whiteBlock}>
+            <View style={[bottomSheetStyles.whiteBlock, themeStyles.backgroundColor]}>
                 <View style={bottomSheetStyles.ScrollView}>
                     <View style={setUpStyles.createForm}>
                         <View>
-                            <Text style={[mainStyles.h1, { marginBottom: 30 }]}>{
+                            <Text style={[mainStyles.h1, mainStyles.text, { marginBottom: 30 }]}>{
                                 activeType == 'feeding'
                                     ?
                                     props.type == 'edit' ? lnObj.editMealSchedule[language] : lnObj.newMealSchedule[language]
@@ -236,14 +244,12 @@ export default function BottomSheetRecord(props) {
 
                         <View style={bottomSheetStyles.row}>
                             <View style={bottomSheetStyles.inputLabelRow}>
-                                <Text style={mainStyles.inputLabelText}>{lnObj.feedingName[language]}</Text>
+                                <Text style={[mainStyles.inputLabelText, mainStyles.text]}>{lnObj.feedingName[language]}</Text>
                             </View>
-                            <View style={[bottomSheetStyles.textInputWrapper]}>
-                            </View>
-                            <View style={bottomSheetStyles.childFormInputsBlock_1}>
+                            <View style={[bottomSheetStyles.childFormInputsBlock_1]}>
                                 {Platform.OS === 'android' ?
                                     <View>
-                                        <View style={[mainStyles.textSelectWrapper]}>
+                                        <View style={[mainStyles.textSelectWrapper, themeStyles.backgroundColorDark]}>
                                             <Picker
                                                 selectedValue={recordName}
                                                 style={{ height: 47, marginTop: -7 }}
@@ -262,18 +268,18 @@ export default function BottomSheetRecord(props) {
                                         </View>
                                     </View>
                                     :
-                                    <Pressable onPress={showActionSheet} style={setUpStyles.genderPresSheet}>
-                                        <Text style={setUpStyles.genderPresSheetText}>{recordName}</Text>
+                                    <Pressable onPress={showActionSheet} style={[setUpStyles.genderPresSheet, themeStyles.backgroundColorLightDark]}>
+                                        <Text style={[setUpStyles.genderPresSheetText, mainStyles.text]}>{recordName}</Text>
                                     </Pressable>
                                 }
                             </View>
                         </View>
 
-                        <View style={bottomSheetStyles.sleepTimeBlock}>
-                            <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep]}>{activeType == 'sleep' ? lnObj.childGoToSleep[language] : lnObj.childGoToEat[language]}</Text>
+                        <View style={[bottomSheetStyles.sleepTimeBlock]}>
+                            <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep, mainStyles.text, themeStyles.backgroundColor]}>{activeType == 'sleep' ? lnObj.childGoToSleep[language] : lnObj.childGoToEat[language]}</Text>
                             <View style={bottomSheetStyles.row}>
                                 <View style={bottomSheetStyles.inputLabelRow}>
-                                    <Text style={mainStyles.inputLabelText}>{lnObj.date[language]}</Text>
+                                    <Text style={[mainStyles.inputLabelText, mainStyles.text]}>{lnObj.date[language]}</Text>
                                 </View>
 
                                 {Platform.OS === 'android' ?
@@ -291,7 +297,7 @@ export default function BottomSheetRecord(props) {
                                         </View>
                                     </View>
                                     :
-                                    <View style={{ marginLeft: -10 }}>
+                                    <View style={{ marginLeft: -20 }}>
                                         <DateTimePicker
                                             testID="recordTimePiker"
                                             value={recordDate}
@@ -307,7 +313,7 @@ export default function BottomSheetRecord(props) {
                             </View>
                             <View style={bottomSheetStyles.row}>
                                 <View style={bottomSheetStyles.inputLabelRow}>
-                                    <Text style={mainStyles.inputLabelText}>{lnObj.feedingTime[language]}</Text>
+                                    <Text style={[mainStyles.inputLabelText, mainStyles.text]}>{lnObj.feedingTime[language]}</Text>
                                 </View>
 
                                 {Platform.OS === 'android' ?
@@ -348,10 +354,10 @@ export default function BottomSheetRecord(props) {
 
                                 {recordDateEnd != null && recordDateEnd.getFullYear() != '1900' ?
                                     <View style={bottomSheetStyles.sleepTimeBlock}>
-                                        <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep]}>{lnObj.childWakesUpAt[language]}</Text>
+                                        <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep, mainStyles.text, themeStyles.backgroundColor]}>{lnObj.childWakesUpAt[language]}</Text>
                                         <View style={bottomSheetStyles.row}>
                                             <View style={bottomSheetStyles.inputLabelRow}>
-                                                <Text style={mainStyles.inputLabelText}>{lnObj.date[language]}</Text>
+                                                <Text style={[mainStyles.inputLabelText,mainStyles.text]}>{lnObj.date[language]}</Text>
                                             </View>
 
                                             {Platform.OS === 'android' ?
@@ -369,7 +375,7 @@ export default function BottomSheetRecord(props) {
                                                     </View>
                                                 </View>
                                                 :
-                                                <View style={{ marginLeft: -10 }}>
+                                                <View style={{ marginLeft: -20 }}>
                                                     <DateTimePicker
                                                         testID="recordTimePiker"
                                                         value={recordDateEnd}
@@ -383,7 +389,7 @@ export default function BottomSheetRecord(props) {
                                         </View>
                                         <View style={bottomSheetStyles.row}>
                                             <View style={bottomSheetStyles.inputLabelRow}>
-                                                <Text style={mainStyles.inputLabelText}>{lnObj.feedingTime[language]}</Text>
+                                                <Text style={[mainStyles.inputLabelText, mainStyles.text]}>{lnObj.feedingTime[language]}</Text>
                                             </View>
 
                                             {Platform.OS === 'android' ?
@@ -419,7 +425,7 @@ export default function BottomSheetRecord(props) {
                                     </View>
                                     :
                                     <View style={bottomSheetStyles.sleepTimeBlock}>
-                                        <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep]}>{lnObj.childWakesUp[language]}?</Text>
+                                        <Text style={[mainStyles.inputLabelText, mainStyles.inputLabelTextSleep, mainStyles.text, themeStyles.backgroundColor]}>{lnObj.childWakesUp[language]}?</Text>
                                         <View style={mainStyles.row}>
                                             <TouchableOpacity onPress={() => {
                                                 setRecordDateEnd(new Date())

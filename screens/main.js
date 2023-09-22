@@ -39,7 +39,6 @@ export default function Main({ navigation }) {
     useEffect(() => {
         setInterval(() => {
             setNowDateTime(new Date())
-
         }, 60000);
     }, [nowDateTime]);
 
@@ -61,7 +60,7 @@ export default function Main({ navigation }) {
     let schedules = schedulesRaw.filter(item => item.type == activeType)
 
     const child = useSelector((state) => {
-        return state.records.activeChild ?? [{ "childrenID": 1, "dob": "", "gender": "", "name": "", "photo": "", "userId": "" }]
+        return state.records.activeChild || [{ "childrenID": 1, "dob": "", "gender": "", "name": "", "photo": "", "userId": "" }]
     });
 
     const setIsVisible = async (visibility) => {
@@ -103,13 +102,13 @@ export default function Main({ navigation }) {
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'height' : 'height'}>
-            <SafeAreaView style={[{ backgroundColor: '#f5f5f5' },themeStyles.backgroundColor]}>
+            <SafeAreaView style={[themeStyles.backgroundColorDark]}>
                 <View style={mainStyles.screenContainer}>
                     <HeaderComponent userId={userId} navigation={navigation} child={child}></HeaderComponent>
                     <View style={mainStyles.headingTextBlock}>
-                        <Text style={[mainStyles.h2_notBold]}>{activeType == 'feeding' ? lnObj.feedingMainHeader[language] : lnObj.sleepMainHeader[language]}</Text>
+                        <Text style={[mainStyles.h2_notBold, mainStyles.text]}>{activeType == 'feeding' ? lnObj.feedingMainHeader[language] : lnObj.sleepMainHeader[language]}</Text>
                     </View>
-                    <ScrollView style={mainStyles.mainScrollView}>
+                    <ScrollView style={[mainStyles.mainScrollView, themeStyles.backgroundColorDark]}>
                         {[
                             recordsFiltered.map((element, i, array) => {
                                 if (activeType == 'feeding') {
@@ -120,14 +119,14 @@ export default function Main({ navigation }) {
                                                     i > 0 && Moment(element.dateTime).format('DD.MM.YYYY') != Moment(array[i - 1].dateTime).format('DD.MM.YYYY') ? { marginBottom: 10 } : { display: 'none' }
                                                 , mainStyles.countDayMain]}>
                                                 <View style={mainStyles.countDayMainLine}></View>
-                                                <Text style={[mainStyles.text, mainStyles.countDayMainText]}>
+                                                <Text style={[mainStyles.text, mainStyles.countDayMainText, themeStyles.backgroundColorDark]}>
                                                     {i == 0 && Moment(element.dateTime).format('DD.MM.YYYY') == Moment(new Date()).format('DD.MM.YYYY') ? lnObj.todayText[language] :
                                                         i > 0 && Moment(element.dateTime).format('DD.MM.YYYY') != Moment(array[i - 1].dateTime).format('DD.MM.YYYY') ? Moment(element.dateTime).format('DD.MM.YYYY') : ''
                                                     }
                                                 </Text>
                                             </View>
                                             <TimeCheckBlock type={'feeding'} timePass={findDiffRecordsDates(i)} index={i} ></TimeCheckBlock>
-                                            <TouchableOpacity style={mainStyles.recordBlockWrapper} onPress={() => { editRecord(element.attr1, element.dateTime, element.dateTimeEnd, element.name, element.recordId, element.scheduleId, element.type) }}>
+                                            <TouchableOpacity style={[mainStyles.recordBlockWrapper, themeStyles.backgroundColor]} onPress={() => { editRecord(element.attr1, element.dateTime, element.dateTimeEnd, element.name, element.recordId, element.scheduleId, element.type) }}>
 
                                                 <View style={mainStyles.col}>
                                                     <View style={mainStyles.recordTextPartHolder}>
@@ -157,7 +156,7 @@ export default function Main({ navigation }) {
                                     return (
                                         <View key={i} style={mainStyles.recordRow}>
                                             <TimeCheckBlock type={'sleep'} timePass={findDiffRecordsDates(i)} index={i} ></TimeCheckBlock>
-                                            <TouchableOpacity style={mainStyles.recordBlockSleepWrapper} onPress={() => { editRecord(element.attr1, element.dateTime, element.dateTimeEnd, element.name, element.recordId, element.scheduleId, element.type) }}>
+                                            <TouchableOpacity style={[mainStyles.recordBlockSleepWrapper, themeStyles.backgroundColor]} onPress={() => { editRecord(element.attr1, element.dateTime, element.dateTimeEnd, element.name, element.recordId, element.scheduleId, element.type) }}>
                                                 <View style={mainStyles.recordBlockWrapperSleep}>
                                                     <View style={mainStyles.col}>
                                                         <View style={mainStyles.recordTextPartHolder}>
@@ -182,9 +181,9 @@ export default function Main({ navigation }) {
                                                         </View>
                                                     </View>
                                                     <View style={[mainStyles.col]}>
-                                                        <View style={mainStyles.sleepRecordDurationDiv}></View>
+                                                        <View style={[mainStyles.sleepRecordDurationDiv, themeStyles.backgroundColorDark]}></View>
                                                         <View style={[mainStyles.sleepCol]}>
-                                                            <Text style={[mainStyles.sleepColText]}>{element.dateTimeEnd != '1900-01-01' ? findDifferenceSleep(element.dateTime, element.dateTimeEnd) : `Сон идет ${findDifferenceSleep(element.dateTime, null)}`}</Text>
+                                                            <Text style={[mainStyles.text, mainStyles.sleepColText, themeStyles.backgroundColor]}>{element.dateTimeEnd != '1900-01-01' ? findDifferenceSleep(element.dateTime, element.dateTimeEnd) : `Сон идет ${findDifferenceSleep(element.dateTime, null)}`}</Text>
                                                         </View>
                                                     </View>
                                                     <View style={mainStyles.col}>
@@ -214,7 +213,7 @@ export default function Main({ navigation }) {
                             })
                         ]}
                     </ScrollView>
-                    <View style={mainStyles.bottomMenuHolder}>
+                    <View style={[mainStyles.bottomMenuHolder, themeStyles.backgroundColor]}>
                         <View style={mainStyles.bottomMenu}>
                             <View style={mainStyles.col}>
                                 <TouchableOpacity onPress={() => { setActiveType('feeding') }} style={[mainStyles.bottomMeuButton, mainStyles.bm_feeding, activeType == 'feeding' ? mainStyles.activeMenuButton : '']}>

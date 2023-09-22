@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Text, View, Pressable, TextInput, Platform, Keyboard } from 'react-native';
 import { setUpStyles } from '../assets/styles/setUpStyles';
 import { mainStyles } from '../assets/styles/mainStyles';
+import { themeStyles } from '../assets/styles/themeStyles';
 import { bottomSheetStyles } from '../assets/styles/bottomSheetStyles';
 import { useDispatch, useSelector } from 'react-redux';
 import { Icon } from 'react-native-elements'
@@ -87,20 +88,20 @@ export default function BottomSheetSchedule(props) {
     return (
         <Pressable style={[bottomSheetStyles.wrapper, { display: isVisible ? 'flex' : 'none' }]}>
             <Pressable style={bottomSheetStyles.blackBlock} onPress={() => setIsVisible(false)} ></Pressable>
-            <View style={bottomSheetStyles.whiteBlock}>
+            <View style={[bottomSheetStyles.whiteBlock, themeStyles.backgroundColor]}>
                 <View style={bottomSheetStyles.ScrollView}>
                     <View style={setUpStyles.createForm}>
-                        <View><Text style={[mainStyles.h1, { marginBottom: 30 }]}>{activeType == 'feeding' ? lnObj.newMealSchedule[language] : lnObj.newBedTimeSchedule[language]}</Text></View>
+                        <View><Text style={[mainStyles.h1, mainStyles.text, { marginBottom: 30 }]}>{activeType == 'feeding' ? lnObj.newMealSchedule[language] : lnObj.newBedTimeSchedule[language]}</Text></View>
                         <View style={bottomSheetStyles.row}>
                             <View style={bottomSheetStyles.inputLabelRow}>
-                                <Text style={mainStyles.inputLabelText}>{lnObj.feedingName[language]}</Text>
+                                <Text style={[mainStyles.inputLabelText, mainStyles.text]}>{lnObj.feedingName[language]}</Text>
                             </View>
-                            <View style={[bottomSheetStyles.textInputWrapper]}>
+                            <View style={[bottomSheetStyles.textInputWrapper, themeStyles.backgroundColorLightDark]}>
                                 <TextInput
-                                    style={mainStyles.textInput}
+                                    style={[mainStyles.textInput, mainStyles.text]}
                                     value={scheduleName}
                                     onChangeText={(value) => { setScheduleName(value) }}
-                                    placeholder=""
+                                    placeholder={`${lnObj.placeHolderExp[language]}: ${activeType == 'feeding' ? lnObj.breakfast[language] : lnObj.dayDream[language]}`}
                                     placeholderTextColor="#d3d3d3"
                                     autoCorrect={false}
                                 ></TextInput>
@@ -108,7 +109,7 @@ export default function BottomSheetSchedule(props) {
                         </View>
                         <View style={bottomSheetStyles.row}>
                             <View style={bottomSheetStyles.inputLabelRow}>
-                                <Text style={mainStyles.inputLabelText}>{lnObj.feedingTime[language]}</Text>
+                                <Text style={[mainStyles.inputLabelText, mainStyles.text]}>{lnObj.feedingTime[language]}</Text>
                             </View>
 
                             {Platform.OS === 'android' ?

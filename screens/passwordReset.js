@@ -60,7 +60,7 @@ export default function PasswordReset({ navigation }) {
             <View style={styles.wrapper}>
 
                 <LinearGradient
-                    colors={['#FF98BD', '#7AAFFF']}
+                    colors={['#FF5995', '#5379FF']}
                     start={[0, 0]}
                     end={[1, 0]}
                     style={styles.container}
